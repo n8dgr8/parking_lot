@@ -1,0 +1,44 @@
+<html>
+
+    <head>
+        <title>300 Apollo Charging Spots</title>
+        <style>
+            .occupied {
+                background-color: red;
+            }
+            .unoccupied {
+                background-color: green;
+            }
+            .unknown {
+                background-color: gray;
+            }
+            .parkinglot {
+                div {
+                    width: 60px;
+                    height: 20px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>300 Apollo Charging Stations</h1>
+        <div class="parkinglot" style="align-items: center">
+            <div id="spot1" class="unknown">1</div>
+            <div id="spot2" class="unknown">2</div>
+            <div id="spot3" class="unknown">3</div>
+            <div id="spot4" class="unknown">4</div>
+        </div>
+    </body>
+
+    <script type="text/javascript">
+        const protocol = window.location.protocol == 'https' ? 'wss' : 'ws';
+        const socket = new WebSocket(protocol + '://' + window.location.hostname + ':' + window.location.port + '/ws');
+        socket.addEventListener('message', (event) => {
+            for (const spot of JSON.parse(event.data)) {
+                document.getElementById(spot.id).className = spot.status;
+            }
+        });
+    </script>
+
+</html>
