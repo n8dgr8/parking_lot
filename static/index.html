@@ -32,7 +32,7 @@
     </body>
 
     <script type="text/javascript">
-        const protocol = window.location.protocol == 'https' ? 'wss' : 'ws';
+        const protocol = window.location.protocol.contains('https') ? 'wss' : 'ws';
         const socket = new WebSocket(protocol + '://' + window.location.hostname + ':' + window.location.port + '/ws');
         socket.addEventListener('message', (event) => {
             for (const spot of JSON.parse(event.data)) {
