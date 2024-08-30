@@ -1,6 +1,7 @@
 import { Hono } from "https://deno.land/x/hono@v4.3.11/mod.ts";
 import { upgradeWebSocket } from "https://deno.land/x/hono@v4.3.11/adapter/deno/index.ts";
-import { WSContext, type WSReadyState } from "https://deno.land/x/hono@v4.3.11/helper/websocket/index.ts";
+import { WSContext } from "https://deno.land/x/hono@v4.3.11/helper/websocket/index.ts";
+import { serveStatic } from "https://deno.land/x/hono@v4.3.11/middleware/serve-static/index.ts";
 
 const app = new Hono();
 
@@ -64,17 +65,20 @@ app.put('/spot/:id', async (c) => {
 const getParkingLot = async () => {
   const spots = kv.list({prefix: ['300-apollo', 'parking-lot']});
 
-  const parkingLot = Object();
+  const parkingLot = [];
 
   for await (const spot of spots) {
     const spotKey: string = spot.key.at(-1) as string;
-    parkingLot[spotKey] = spot.value;
+    parkingLot.push({
+      id: spotKey,
+      status: spot.value
+    });
   }
 
   return parkingLot;
 }
 
-app.get('/', async (c) => {
+app.get('/parking_lot', async (c) => {
   const returnStructure = await getParkingLot();
   return(
     c.json(
@@ -83,5 +87,17 @@ app.get('/', async (c) => {
     )
   );
 });
+
+app.use(
+  '/index.html',
+  serveStatic(
+    {
+      root: './',
+      getContent: async () => {
+        return await Deno.readFile('./static/index.html');
+      }
+    }
+  )
+);
 
 Deno.serve(app.fetch);
