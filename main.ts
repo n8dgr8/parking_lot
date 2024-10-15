@@ -29,7 +29,7 @@ app.get(
   })
 )
 
-app.put('/spot/:id', async (c) => {
+app.get('/spot/:id', async (c) => {
   const spotId: number = parseInt(c.req.param('id'), 10);
 
   if( (spotId <= 4) && (spotId >= 1) ) {
