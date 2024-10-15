@@ -37,6 +37,8 @@ app.get('/spot/:id', async (c) => {
 
     const spotStatus: SpotStatus = c.req.query('status') as SpotStatus;
 
+    console.log('SPOT ' + spotKey + ' is ' + spotStatus);
+
     await kv.set(
       [
         '300-apollo',
