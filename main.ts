@@ -29,15 +29,17 @@ app.get(
   })
 )
 
-app.get('/spot/:id', async (c) => {
-  const spotId: number = parseInt(c.req.param('id'), 10);
+app.put('/spot', async (c) => {
+
+  const spotId: number = parseInt(c.req.query('id') as string, 10);
 
   if( (spotId <= 4) && (spotId >= 1) ) {
     const spotKey = 'spot' + spotId;
+    const requestBody = await c.req.json();
 
-    const spotStatus: SpotStatus = c.req.query('status') as SpotStatus;
+    const spotStatus: SpotStatus = requestBody.status as SpotStatus;
 
-    console.log('SPOT ' + spotKey + ' is ' + spotStatus);
+    console.log('Spot [' + spotKey + '] is now ' + spotStatus);
 
     await kv.set(
       [
@@ -56,7 +58,7 @@ app.get('/spot/:id', async (c) => {
       }
     }
 
-    return c.text('OK', 200);
+    return c.text('OK', 201);
   }
   else {
     return c.text('Not OK', 401);
