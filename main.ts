@@ -34,9 +34,8 @@ app.get('/spot/:id', async (c) => {
 
   if( (spotId <= 4) && (spotId >= 1) ) {
     const spotKey = 'spot' + spotId;
-    const requestBody = await c.req.json();
 
-    const spotStatus: SpotStatus = requestBody.status as SpotStatus;
+    const spotStatus: SpotStatus = c.req.query('status') as SpotStatus;
 
     await kv.set(
       [
@@ -55,7 +54,7 @@ app.get('/spot/:id', async (c) => {
       }
     }
 
-    return c.text('OK', 201);
+    return c.text('OK', 200);
   }
   else {
     return c.text('Not OK', 401);
