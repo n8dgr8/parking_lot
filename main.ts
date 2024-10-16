@@ -106,12 +106,20 @@ app.get('/parking_lot', async (c) => {
 });
 
 app.get('/parking_lot/history', async (c) => {
-  const history = [];
-  
+  const history = {
+    'spot1': {},
+    'spot2': {},
+    'spot3': {},
+    'spot4': {}
+  };
+
   const historicalSpots = kv.list({prefix: ['historical']});
 
   for await (const spot of historicalSpots) {
-    history.push(spot);
+    const spotId = spot.key[1] as string;
+    const timestamp = spot.key[2];
+   
+    history[spotId][timestamp] = spot.value;
   }
 
   return(
