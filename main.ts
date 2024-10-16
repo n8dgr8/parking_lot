@@ -57,8 +57,7 @@ app.put('/spot', async (c) => {
 
     await kv.set(
       [
-        '300-apollo',
-        'parking-lot',
+        'historical',
         spotKey,
         Date.now()
       ],
