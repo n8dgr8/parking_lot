@@ -52,7 +52,10 @@ app.put('/spot', async (c) => {
         'parking-lot',
         spotKey
       ],
-      spotStatus
+      {
+        timestamp: Date.now(),
+        status: spotStatus
+      }
     );
 
     await kv.set(
@@ -86,9 +89,11 @@ const getParkingLot = async () => {
 
   for await (const spot of spots) {
     const spotKey: string = spot.key.at(-1) as string;
+    const valueObject = JSON.parse(spot.value as string);
     parkingLot.push({
       id: spotKey,
-      status: spot.value
+      status: valueObject.status,
+      timestamp: valueObject.timestamp
     });
   }
 
@@ -118,7 +123,6 @@ app.get('/parking_lot/history', async (c) => {
   for await (const spot of historicalSpots) {
     const spotId = spot.key[1] as string;
     const timestamp = spot.key[2];
-   
     history[spotId][timestamp] = spot.value;
   }
 
@@ -128,7 +132,7 @@ app.get('/parking_lot/history', async (c) => {
       200
     )
   );
-})
+});
 
 app.use(
   '/index.html',
