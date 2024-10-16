@@ -89,7 +89,7 @@ const getParkingLot = async () => {
 
   for await (const spot of spots) {
     const spotKey: string = spot.key.at(-1) as string;
-    const valueObject = JSON.parse(spot.value as string);
+    const valueObject = spot.value as string;
     parkingLot.push({
       id: spotKey,
       status: valueObject.status,
