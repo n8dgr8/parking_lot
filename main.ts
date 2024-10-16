@@ -24,6 +24,11 @@ app.get(
       onClose: (_event, ws: WSContext) => {
         const wsIndex = websockets.indexOf(ws);
         websockets.splice(wsIndex, 1);
+      },
+      onMessage: async (message, ws: WSContext) => {
+        if (message.data === 'ping') {
+          ws.send('pong');
+        }
       }
     }
   })
