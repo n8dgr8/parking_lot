@@ -19,6 +19,7 @@ app.get(
     return {
       async onOpen(_event, ws: WSContext) {
         websockets.push(ws);
+        ws.send('pong-' + Deno.env.get('DENO_DEPLOYMENT_ID'));
         ws.send(JSON.stringify(await getParkingLot()));
       },
       onClose: (_event, ws: WSContext) => {
@@ -27,7 +28,7 @@ app.get(
       },
       onMessage: async (message, ws: WSContext) => {
         if (message.data === 'ping') {
-          ws.send('pong');
+          ws.send('pong-' + Deno.env.get('DENO_DEPLOYMENT_ID'));
         }
       }
     }

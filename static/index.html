@@ -137,6 +137,7 @@
     </body>
 
     <script type="text/javascript">
+        let appVersion = null;
         let lastMessageTimestamp = 0;
         const protocol = window.location.protocol == "https:" ? "wss" : "ws";
         const socket = new WebSocket(
@@ -146,7 +147,17 @@
         socket.addEventListener("message", (event) => {
             lastMessageTimestamp = Date.now();
             try {
-                if (event.data == 'pong') {
+                if (event.data.includes('pong-')) {
+                    const currentAppVersion = event.data.split('-')[1];
+                    if (appVersion == null) {
+                        appVersion = currentAppVersion;
+                    }
+                    if (appVersion != currentAppVersion) {
+                        console.log('Server-reported app version changed from '+ appVersion +' to '+ currentAppVersion + ', restarting.');
+                        window.setTimeout(() => {
+                            window.location.reload();
+                        }, 1000 * 5);
+                    }
                     return;
                 }
 
