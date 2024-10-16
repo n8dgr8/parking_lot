@@ -55,6 +55,16 @@ app.put('/spot', async (c) => {
       spotStatus
     );
 
+    await kv.set(
+      [
+        '300-apollo',
+        'parking-lot',
+        spotKey,
+        Date.now()
+      ],
+      spotStatus
+    );
+
     const parkingLot = JSON.stringify(await getParkingLot());
 
     for (const websocket of websockets) {
