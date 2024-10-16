@@ -122,12 +122,14 @@
     </body>
 
     <script type="text/javascript">
+        let lastMessageTimestamp = 0;
         const protocol = window.location.protocol == "https:" ? "wss" : "ws";
         const socket = new WebSocket(
             protocol + "://" + window.location.hostname + ":" +
                 window.location.port + "/ws",
         );
         socket.addEventListener("message", (event) => {
+            lastMessageTimestamp = Date.now();
             try {
                 if (event.data == 'pong') {
                     return;
@@ -150,10 +152,27 @@
             }
         });
 
-        //  Send this every 5 minutes
+        //  Reload the page when the websocket is closed
+        //  Wait 5 seconds to be nice.
+        socket.onclose = () => {
+            console.log("Connection closed");
+            window.setTimeout(() => {
+                window.location.reload();
+            }, 1000 * 5);
+        };
+
+        //  Send a ping every minute
         window.setInterval(() => {
             socket.send('ping');
-        }, 1000 * 60);
+        }, 1000 * 60 * 1);
+
+        //  Check if we're alive every 5 minutes
+        //  If not, reload the page
+        window.setInterval(() => {
+            if (Date.now() - lastMessageTimestamp > 5 * 60 * 1000) {
+                window.location.reload();
+            }
+        }, 1000 * 60 * 5)
 
     </script>
 </html>

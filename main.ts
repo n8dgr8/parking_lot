@@ -105,6 +105,23 @@ app.get('/parking_lot', async (c) => {
   );
 });
 
+app.get('/parking_lot/history', async (c) => {
+  const history = [];
+  
+  const historicalSpots = kv.list({prefix: ['historical']});
+
+  for await (const spot of historicalSpots) {
+    history.push(spot);
+  }
+
+  return(
+    c.json(
+      history,
+      200
+    )
+  );
+})
+
 app.use(
   '/index.html',
   serveStatic(
