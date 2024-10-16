@@ -75,6 +75,12 @@
                 color: green;
                 font-size: 72px;
             }
+
+            .timestamp {
+                font-size: 10px;
+                color: white;
+                font-family: sans-serif;
+            }
         </style>
     </head>
     <body>
@@ -94,13 +100,18 @@
                 1
                 <br/>
                 <i id="spot1"></i>
+                <br/>
+                <div id="spot1_timestamp" class="timestamp"></div>
             </div>
+
             <div class="parking-line"></div>
 
             <div class="parking-space">
                 2
                 <br/>
                 <i id="spot2"></i>
+                <br/>
+                <div id="spot2_timestamp" class="timestamp"></div>
             </div>
             <div class="parking-line"></div>
 
@@ -109,6 +120,8 @@
                 3
                 <br/>
                 <i id="spot3"></i>
+                <br/>
+                <div id="spot3_timestamp" class="timestamp"></div>
             </div>
             <div class="parking-line"></div>
 
@@ -116,6 +129,8 @@
                 4
                 <br/>
                 <i id="spot4"></i>
+                <br/>
+                <div id="spot4_timestamp" class="timestamp"></div>
             </div>
             <div class="parking-line"></div>
         </div>
@@ -146,6 +161,8 @@
 
                     document.getElementById(spot.id).className = iconClass;
                     document.getElementById(spot.id).style = iconStyle;
+
+                    document.getElementById(spot.id + '_timestamp').innerText = new Date(spot.timestamp).toLocaleTimeString();
                 }
             } catch (error) {
                 console.log(error);
