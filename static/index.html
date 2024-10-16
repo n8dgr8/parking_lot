@@ -128,18 +128,32 @@
                 window.location.port + "/ws",
         );
         socket.addEventListener("message", (event) => {
-            for (const spot of JSON.parse(event.data)) {
-                let iconClass = "bi bi-x-square";
-                let iconStyle = "color: red;";
-
-                if (spot.status == "unoccupied") {
-                    iconClass = "bi bi-check2-square";
-                    iconStyle = "color: green;";
+            try {
+                if (event.data == 'pong') {
+                    return;
                 }
 
-                document.getElementById(spot.id).className = iconClass;
-                document.getElementById(spot.id).style = iconStyle;
+                for (const spot of JSON.parse(event.data)) {
+                    let iconClass = "bi bi-x-square";
+                    let iconStyle = "color: red;";
+
+                    if (spot.status == "unoccupied") {
+                        iconClass = "bi bi-check2-square";
+                        iconStyle = "color: green;";
+                    }
+
+                    document.getElementById(spot.id).className = iconClass;
+                    document.getElementById(spot.id).style = iconStyle;
+                }
+            } catch (error) {
+                console.log(error);
             }
         });
+
+        //  Send this every 5 minutes
+        window.setTimeout(() => {
+            socket.send('ping');
+        }, 1000 * 60);
+
     </script>
 </html>
