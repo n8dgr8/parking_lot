@@ -151,7 +151,7 @@
         });
 
         //  Send this every 5 minutes
-        window.setTimeout(() => {
+        window.setInterval(() => {
             socket.send('ping');
         }, 1000 * 60);
 
