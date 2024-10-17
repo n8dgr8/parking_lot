@@ -42,9 +42,18 @@ app.put("/spot", async (c) => {
     const spotKey = "spot" + spotId;
     const requestBody = await c.req.json();
 
-    const spotStatus: SpotStatus = requestBody.status as SpotStatus;
+    const newSpotStatus: SpotStatus = requestBody.status as SpotStatus;
 
-    console.log("Spot [" + spotKey + "] is now " + spotStatus);
+    console.log("Spot [" + spotKey + "] is now " + newSpotStatus);
+
+    const spot = await kv.get(
+      ["300-apollo", "parking-lot", spotKey]
+    );
+
+    //  Nothing to do, state is the same
+    if (spot.value.status == newSpotStatus) {
+      return c.text("OK", 201);
+    }
 
     await kv.set(
       [
@@ -54,7 +63,7 @@ app.put("/spot", async (c) => {
       ],
       {
         timestamp: Date.now(),
-        status: spotStatus,
+        status: newSpotStatus,
       },
     );
 
@@ -64,7 +73,7 @@ app.put("/spot", async (c) => {
         spotKey,
         Date.now(),
       ],
-      spotStatus,
+      newSpotStatus,
     );
 
     const parkingLot = JSON.stringify(await getParkingLot());
@@ -88,7 +97,7 @@ const getParkingLot = async () => {
 
   for await (const spot of spots) {
     const spotKey: string = spot.key.at(-1) as string;
-    const valueObject = spot.value as string;
+    const valueObject = spot.value;
     parkingLot.push({
       id: spotKey,
       status: valueObject.status,
