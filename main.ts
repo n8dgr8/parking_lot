@@ -1,5 +1,5 @@
 import { Hono } from "jsr:@hono/hono";
-import { upgradeWebSocket, serveStatic } from "jsr:@hono/hono/deno/";
+import { serveStatic, upgradeWebSocket } from "jsr:@hono/hono/deno/";
 import { WSContext } from "jsr:@hono/hono/ws";
 
 const app = new Hono();
@@ -7,23 +7,24 @@ const app = new Hono();
 const kv = await Deno.openKv();
 
 type Spot = "spot1" | "spot2" | "spot3" | "spot4";
-
 type SpotStatus = "occupied" | "unoccupied";
 
-const websockets: WSContext[] = [];
+const websockets = new Map<string, WSContext>();
 
 app.get(
   "/ws",
   upgradeWebSocket(() => {
     return {
       async onOpen(_event, ws: WSContext) {
-        websockets.push(ws);
+        //  Hey, hold this UUID for me, will ya?
+        //  Don't worry about those squiggles.
+        ws.id = crypto.randomUUID();
+        websockets.set(ws.id, ws);
         ws.send("pong-" + Deno.env.get("DENO_DEPLOYMENT_ID"));
         ws.send(JSON.stringify(await getParkingLot()));
       },
       onClose: (_event, ws: WSContext) => {
-        const wsIndex = websockets.indexOf(ws);
-        websockets.splice(wsIndex, 1);
+        websockets.delete(ws.id);
       },
       onMessage: async (message, ws: WSContext) => {
         if (message.data === "ping") {
@@ -34,13 +35,19 @@ app.get(
   }),
 );
 
-app.get('/debug', async (c) => {
+app.get("/ws_debug", async (c) => {
+  const socketArray: WSContext[] = [];
+
+  websockets.forEach((ws) => {
+    socketArray.push(ws);
+  });
+
   return (
     c.json(
       {
-        websockets: websockets
+        websockets: socketArray,
       },
-      200
+      200,
     )
   );
 });
@@ -57,7 +64,7 @@ app.put("/spot", async (c) => {
     console.log("Spot [" + spotKey + "] is now " + newSpotStatus);
 
     const spot = await kv.get(
-      ["300-apollo", "parking-lot", spotKey]
+      ["300-apollo", "parking-lot", spotKey],
     );
 
     //  Nothing to do, state is the same
@@ -88,11 +95,13 @@ app.put("/spot", async (c) => {
 
     const parkingLot = JSON.stringify(await getParkingLot());
 
-    for (const websocket of websockets) {
+    websockets.forEach((websocket) => {
       if (websocket.readyState == 1) {
         websocket.send(parkingLot);
+      } else {
+        console.log("Websocket " + websocket.id + " has state [" + websocket.readyState + "]");
       }
-    }
+    });
 
     return c.text("OK", 201);
   } else {
@@ -138,15 +147,15 @@ app.get("/parking_lot/rawHistory", async (c) => {
       {
         spotId: record.key[1],
         value: record.value,
-        timestamp: record.key[2]
-      }
+        timestamp: record.key[2],
+      },
     );
   }
 
   return (
     c.json(
       returnStructure,
-      200
+      200,
     )
   );
 });
@@ -175,16 +184,18 @@ app.get("/parking_lot/history", async (c) => {
   );
 });
 
-app.use('/',
+app.use(
+  "/",
   serveStatic(
-    { path: './static/index.html' }
-  )
+    { path: "./static/index.html" },
+  ),
 );
 
-app.use('/index.html',
+app.use(
+  "/index.html",
   serveStatic(
-    { path: './static/index.html' }
-  )
+    { path: "./static/index.html" },
+  ),
 );
 
 Deno.serve(app.fetch);

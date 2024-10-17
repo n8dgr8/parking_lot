@@ -119,7 +119,6 @@
             <div class="parking-line"></div>
 
             <div class="parking-space">
-                <!-- <i class="bi bi-3-square"></i> -->
                 3
                 <br/>
                 <i id="spot3"></i>
@@ -176,7 +175,12 @@
                     document.getElementById(spot.id).className = iconClass;
                     document.getElementById(spot.id).style = iconStyle;
 
-                    document.getElementById(spot.id + '_timestamp').innerText = new Date(spot.timestamp).toLocaleTimeString();
+                    try {
+                        document.getElementById(spot.id + '_timestamp').innerText = new Date(spot.timestamp).toLocaleTimeString();
+                    }
+                    catch (error) {
+                        console.error(error);
+                    }
                 }
             } catch (error) {
                 console.log(error);
@@ -186,7 +190,7 @@
         //  Reload the page when the websocket is closed
         //  Wait 5 seconds to be nice.
         socket.onclose = () => {
-            console.log("Connection closed");
+            console.log(Date.now().toLocaleTimeString() + " - Connection closed");
             window.setTimeout(() => {
                 window.location.reload();
             }, 1000 * 5);
