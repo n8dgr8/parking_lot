@@ -34,6 +34,17 @@ app.get(
   }),
 );
 
+app.get('/debug', async (c) => {
+  return (
+    c.json(
+      {
+        websockets: websockets
+      },
+      200
+    )
+  );
+});
+
 app.put("/spot", async (c) => {
   const spotId: number = parseInt(c.req.query("id") as string, 10);
 
