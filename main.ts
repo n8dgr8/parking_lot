@@ -124,7 +124,13 @@ app.get("/parking_lot/rawHistory", async (c) => {
   const returnStructure = [];
 
   for await (const record of historicalSpots) {
-    returnStructure.push(record);
+    returnStructure.push(
+      {
+        spotId: record.key[1],
+        value: record.value,
+        timestamp: record.key[2]
+      }
+    );
   }
 
   return (
