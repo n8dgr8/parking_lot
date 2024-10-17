@@ -118,6 +118,23 @@ app.get("/parking_lot", async (c) => {
   );
 });
 
+app.get("/parking_lot/rawHistory", async (c) => {
+  const historicalSpots = kv.list({ prefix: ["historical"] });
+
+  const returnStructure = [];
+
+  for await (const record of historicalSpots) {
+    returnStructure.push(record);
+  }
+
+  return (
+    c.json(
+      returnStructure,
+      200
+    )
+  );
+});
+
 app.get("/parking_lot/history", async (c) => {
   const history = {
     "spot1": {},
