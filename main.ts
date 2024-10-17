@@ -1,7 +1,6 @@
-import { Hono } from "https://deno.land/x/hono@v4.3.11/mod.ts";
-import { upgradeWebSocket } from "https://deno.land/x/hono@v4.3.11/adapter/deno/index.ts";
-import { WSContext } from "https://deno.land/x/hono@v4.3.11/helper/websocket/index.ts";
-import { serveStatic } from "https://deno.land/x/hono@v4.3.11/middleware/serve-static/index.ts";
+import { Hono } from "jsr:@hono/hono";
+import { upgradeWebSocket, serveStatic } from "jsr:@hono/hono/deno/";
+import { WSContext } from "jsr:@hono/hono/ws";
 
 const app = new Hono();
 
@@ -165,16 +164,16 @@ app.get("/parking_lot/history", async (c) => {
   );
 });
 
-app.use(
-  "/index.html",
+app.use('/',
   serveStatic(
-    {
-      root: "./",
-      getContent: async () => {
-        return await Deno.readFile("./static/index.html");
-      },
-    },
-  ),
+    { path: './static/index.html' }
+  )
+);
+
+app.use('/index.html',
+  serveStatic(
+    { path: './static/index.html' }
+  )
 );
 
 Deno.serve(app.fetch);
