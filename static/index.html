@@ -6,11 +6,16 @@
             href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@200..800&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@200..800&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
+        />
 
         <style>
             body {
@@ -31,21 +36,15 @@
                 width: 100px;
                 color: yellow;
                 text-align: center;
-                /* line-height: 200px; */
                 font-size: 80px;
                 font-family: "Stick No Bills", sans-serif;
                 font-optical-sizing: auto;
                 font-weight: 700;
                 font-style: bold;
-                /* font-family: sans-serif; */
-                /* float: left; */
             }
 
             .parking-line {
-                /* clear: both; */
-                /* float: left; */
                 width: 12px;
-                /* height: 100%; */
                 background-color: yellow;
                 border-radius: 3px;
             }
@@ -101,9 +100,9 @@
 
             <div class="parking-space">
                 1
-                <br/>
+                <br />
                 <i id="spot1"></i>
-                <br/>
+                <br />
                 <div id="spot1_timestamp" class="timestamp"></div>
             </div>
 
@@ -111,29 +110,32 @@
 
             <div class="parking-space">
                 2
-                <br/>
+                <br />
                 <i id="spot2"></i>
-                <br/>
+                <br />
                 <div id="spot2_timestamp" class="timestamp"></div>
             </div>
+
             <div class="parking-line"></div>
 
             <div class="parking-space">
                 3
-                <br/>
+                <br />
                 <i id="spot3"></i>
-                <br/>
+                <br />
                 <div id="spot3_timestamp" class="timestamp"></div>
             </div>
+
             <div class="parking-line"></div>
 
             <div class="parking-space">
                 4
-                <br/>
+                <br />
                 <i id="spot4"></i>
-                <br/>
+                <br />
                 <div id="spot4_timestamp" class="timestamp"></div>
             </div>
+
             <div class="parking-line"></div>
         </div>
     </body>
@@ -149,16 +151,18 @@
         socket.addEventListener("message", (event) => {
             lastMessageTimestamp = Date.now();
             try {
-                if (event.data.includes('pong-')) {
-                    const currentAppVersion = event.data.split('-')[1];
+                if (event.data.includes("pong-")) {
+                    const currentAppVersion = event.data.split("-")[1];
                     if (appVersion == null) {
                         appVersion = currentAppVersion;
                     }
                     if (appVersion != currentAppVersion) {
-                        console.log('Server-reported app version changed from '+ appVersion +' to '+ currentAppVersion + ', restarting.');
-                        window.setTimeout(() => {
-                            window.location.reload();
-                        }, 1000 * 5);
+                        console.log(
+                            "Server-reported app version changed from " +
+                                appVersion + " to " + currentAppVersion +
+                                ", restarting.",
+                        );
+                        reloadPage(5);
                     }
                     return;
                 }
@@ -176,9 +180,9 @@
                     document.getElementById(spot.id).style = iconStyle;
 
                     try {
-                        document.getElementById(spot.id + '_timestamp').innerText = new Date(spot.timestamp).toLocaleTimeString();
-                    }
-                    catch (error) {
+                        document.getElementById(spot.id + "_timestamp").innerText =
+                            new Date(spot.timestamp).toLocaleTimeString();
+                    } catch (error) {
                         console.error(error);
                     }
                 }
@@ -187,27 +191,42 @@
             }
         });
 
+        //  Keep this thing running.
+        //  We reload on...
+        //      socket.onclose
+        //      last message timestamp > 5 minutes
+        //          pings every minute
+        //      app version changed
+        //
+
         //  Reload the page when the websocket is closed
-        //  Wait 5 seconds to be nice.
         socket.onclose = () => {
             console.log(Date.now().toLocaleTimeString() + " - Connection closed");
-            window.setTimeout(() => {
-                window.location.reload();
-            }, 1000 * 5);
+            reloadPage(5);
         };
 
         //  Send a ping every minute
         window.setInterval(() => {
-            socket.send('ping');
+            try {
+                socket.send("ping");
+            } catch (e) {
+                console.error(e);
+                reloadPage(5);
+            }
         }, 1000 * 60 * 1);
 
         //  Check if we're alive every 5 minutes
         //  If not, reload the page
         window.setInterval(() => {
             if (Date.now() - lastMessageTimestamp > 5 * 60 * 1000) {
-                window.location.reload();
+                reloadPage(5);
             }
-        }, 1000 * 60 * 5)
+        }, 1000 * 60 * 5);
 
+        const reloadPage = (durationSeconds) => {
+            window.setTimeout(() => {
+                window.location.reload();
+            }, 1000 * duration);
+        };
     </script>
 </html>
