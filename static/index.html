@@ -201,7 +201,7 @@
 
         //  Reload the page when the websocket is closed
         socket.onclose = () => {
-            console.log(Date.now().toLocaleTimeString() + " - Connection closed");
+            console.log(new Date().toJSON() + " - Connection closed");
             reloadPage(5);
         };
 
