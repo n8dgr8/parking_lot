@@ -447,8 +447,7 @@
     // Initialize WebSocket manager when the page loads
     window.addEventListener('load', () => {
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const wsUrl = "wss://300-apollo-chargers.n8eye200.cloud/ws";
-        //const wsUrl = `${protocol}://${window.location.hostname}:${window.location.port}/ws`;
+        const wsUrl = `${protocol}://${window.location.hostname}:${window.location.port}/ws`;
         new WebSocketManager(wsUrl);
     });
 </script>
