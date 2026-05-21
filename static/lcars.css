@@ -1,0 +1,254 @@
+/* Base LCARS styling */
+:root {
+    --bg: #000000;
+    --orange: #ff9900;
+    --periwinkle: #cc99cc;
+    --pale-yellow: #ffcc99;
+    --red: #cc0000;
+    --blue: #3366ff;
+    --font-primary: "Antonio", sans-serif;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--orange);
+    font-family: var(--font-primary);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    text-transform: uppercase;
+}
+
+.lcars-app {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    height: 90vh;
+}
+
+/* Sidebar and Elbows */
+.lcars-sidebar {
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+}
+
+.elbow-top-left {
+    height: 100px;
+    background-color: var(--periwinkle);
+    border-radius: 50px 0 0 0;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 10px;
+    color: var(--bg);
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.elbow-top-left-inner {
+    width: 100%;
+    height: 50px;
+    background-color: var(--bg);
+    border-radius: 25px 0 0 0;
+    margin-top: 50px;
+    margin-left: 50px;
+}
+
+.sidebar-block {
+    background-color: var(--pale-yellow);
+    flex-grow: 1;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 10px;
+    color: var(--bg);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.sidebar-block.orange {
+    background-color: var(--orange);
+    flex-grow: 0;
+    height: 200px;
+}
+
+.elbow-bottom-left {
+    height: 150px;
+    background-color: var(--periwinkle);
+    border-radius: 0 0 0 50px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 10px 20px;
+    color: var(--bg);
+    font-weight: 900;
+    font-size: 24px;
+}
+
+.elbow-bottom-left.orange {
+    background-color: var(--orange);
+}
+
+/* Main Content Area */
+.lcars-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.lcars-header {
+    height: 50px;
+    background-color: transparent;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    color: var(--bg);
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 2px;
+    gap: 10px;
+}
+
+.header-title {
+    background-color: var(--periwinkle);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    flex-grow: 1;
+}
+
+.header-stardate {
+    background-color: var(--orange);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.header-status {
+    background-color: var(--red);
+    border-radius: 0 50px 50px 0;
+    padding: 0 30px 0 20px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    transition: background-color 0.3s;
+}
+
+.header-status.connected {
+    background-color: var(--pale-yellow);
+}
+
+.header-status.reconnecting {
+    background-color: var(--periwinkle);
+}
+
+.lcars-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-left: 20px;
+}
+
+/* Parking Pills */
+.parking-pill {
+    display: flex;
+    height: 80px;
+    border-radius: 40px;
+    background-color: var(--pale-yellow);
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+}
+
+.pill-left {
+    width: 140px;
+    background-color: rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--bg);
+}
+
+.shuttle-icon {
+    width: 45px;
+    height: 45px;
+    opacity: 0.15;
+    fill: var(--bg);
+    transition: opacity 0.3s ease;
+}
+
+.parking-pill.occupied .shuttle-icon {
+    opacity: 1;
+}
+
+.pill-main {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    color: var(--bg);
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.timestamp {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+/* Status Colors */
+.parking-pill.unoccupied {
+    background-color: var(--periwinkle);
+}
+
+.parking-pill.occupied {
+    background-color: var(--red);
+}
+
+/* Footer Logs */
+.lcars-footer {
+    margin-top: 20px;
+    height: 150px;
+    display: flex;
+    background-color: transparent;
+    gap: 10px;
+}
+
+/* Removed footer-title */
+
+.log-container {
+    flex-grow: 1;
+    background-color: rgba(204, 153, 204, 0.1);
+    padding: 10px 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    font-family: "Courier New", Courier, monospace;
+    color: var(--periwinkle);
+    font-size: 16px;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+.log-line {
+    opacity: 0.8;
+}
+
+.log-line.alert {
+    color: var(--red);
+    font-weight: bold;
+}
+
+/* Removed old floating connection status */

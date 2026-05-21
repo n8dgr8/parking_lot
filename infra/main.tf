@@ -149,20 +149,30 @@ resource "google_storage_bucket_iam_member" "public_bucket" {
   member = "allUsers"
 }
 
-# Upload index.html to the GCS bucket
-resource "google_storage_bucket_object" "index_html" {
-  name         = "index.html"
-  bucket       = google_storage_bucket.static_site.name
-  source       = "${path.module}/../static/index.html"
-  content_type = "text/html"
+locals {
+  # Map file extensions to MIME types
+  mime_types = {
+    "html" = "text/html"
+    "js"   = "application/javascript"
+    "css"  = "text/css"
+  }
 }
 
-# Upload config.js to the GCS bucket
-resource "google_storage_bucket_object" "config_js" {
-  name         = "config.js"
-  bucket       = google_storage_bucket.static_site.name
-  source       = "${path.module}/../static/config.js"
-  content_type = "application/javascript"
+# Upload all files in the static directory to the GCS bucket
+resource "google_storage_bucket_object" "static_files" {
+  # fileset() finds all files matching the pattern
+  for_each = fileset("${path.module}/../static", "*")
+
+  name   = each.value
+  bucket = google_storage_bucket.static_site.name
+  source = "${path.module}/../static/${each.value}"
+
+  # Dynamically determine content_type based on file extension
+  content_type = lookup(
+    local.mime_types, 
+    split(".", each.value)[length(split(".", each.value)) - 1], 
+    "application/octet-stream"
+  )
 }
 
 output "function_url" {

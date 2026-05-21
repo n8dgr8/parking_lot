@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Starfleet Parking Control</title>
+    <!-- Load Local Config and Shared Logic -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@100..700&display=swap" rel="stylesheet">
+
+    <!-- Dedicated LCARS Stylesheet -->
+    <link rel="stylesheet" href="lcars.css" />
+</head>
+
+<body>
+
+    <div class="lcars-app">
+
+        <!-- Left Sidebar with Elbows -->
+        <div class="lcars-sidebar">
+            <div class="elbow-top-left">
+                01
+                <div class="elbow-top-left-inner"></div>
+            </div>
+
+            <div class="sidebar-block orange">
+                4421<br />
+                883<br />
+                09
+            </div>
+
+            <div class="sidebar-block">
+                982<br />
+                SYS
+            </div>
+
+            <div class="sidebar-block orange" style="height: 100px;">
+                NET
+            </div>
+
+            <div class="elbow-bottom-left orange">
+                SYS LOGS
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="lcars-main">
+
+            <!-- Enhanced Header -->
+            <div class="lcars-header">
+                <div class="header-title">300 APOLLO SHUTTLE CHARGING OPS</div>
+                <div class="header-stardate" id="stardate-display">STARDATE 00000.0</div>
+                <div id="connection-status" class="header-status disconnected">OFFLINE</div>
+            </div>
+
+            <div class="lcars-content">
+
+                <div class="parking-pill" id="space-spot1">
+                    <div class="pill-left">
+                        <span class="spot-num">01</span>
+                        <svg class="shuttle-icon" viewBox="0 0 24 24">
+                            <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" />
+                        </svg>
+                    </div>
+                    <div class="pill-main">
+                        <span class="status-text" id="spot1_status">UNKNOWN</span>
+                        <span class="timestamp" id="spot1_timestamp"></span>
+                    </div>
+                </div>
+
+                <div class="parking-pill" id="space-spot2">
+                    <div class="pill-left">
+                        <span class="spot-num">02</span>
+                        <svg class="shuttle-icon" viewBox="0 0 24 24">
+                            <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" />
+                        </svg>
+                    </div>
+                    <div class="pill-main">
+                        <span class="status-text" id="spot2_status">UNKNOWN</span>
+                        <span class="timestamp" id="spot2_timestamp"></span>
+                    </div>
+                </div>
+
+                <div class="parking-pill" id="space-spot3">
+                    <div class="pill-left">
+                        <span class="spot-num">03</span>
+                        <svg class="shuttle-icon" viewBox="0 0 24 24">
+                            <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" />
+                        </svg>
+                    </div>
+                    <div class="pill-main">
+                        <span class="status-text" id="spot3_status">UNKNOWN</span>
+                        <span class="timestamp" id="spot3_timestamp"></span>
+                    </div>
+                </div>
+
+                <div class="parking-pill" id="space-spot4">
+                    <div class="pill-left">
+                        <span class="spot-num">04</span>
+                        <svg class="shuttle-icon" viewBox="0 0 24 24">
+                            <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" />
+                        </svg>
+                    </div>
+                    <div class="pill-main">
+                        <span class="status-text" id="spot4_status">UNKNOWN</span>
+                        <span class="timestamp" id="spot4_timestamp"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Fake Logs Footer -->
+            <div class="lcars-footer">
+                <div class="log-container" id="system-logs"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Hidden Debug Console Container -->
+    <div id="debug-console" style="display:none;">
+        <div id="debug-content"></div>
+    </div>
+
+    <script type="text/javascript">
+        class LCARSManager {
+            constructor() {
+                this.debug = new DebugConsole(); // from app.js
+
+                // Start the Stardate clock
+                this.startStardateClock();
+
+                // Start the fake logs
+                this.startFakeLogs();
+
+                // Initialize Firebase and pass our render callbacks
+                this.firebase = new FirebaseManager(
+                    this.debug,
+                    (spots) => this.renderSpots(spots),
+                    (status) => this.updateStatus(status)
+                );
+            }
+
+            startStardateClock() {
+                const display = document.getElementById('stardate-display');
+                if (!display) return;
+
+                const updateClock = () => {
+                    const now = new Date();
+                    // Display real date and time in uppercase
+                    const dateStr = now.toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: '2-digit'
+                    }).toUpperCase();
+                    display.textContent = dateStr;
+                };
+
+                updateClock();
+                setInterval(updateClock, 1000); // Update every second
+            }
+
+            startFakeLogs() {
+                const logContainer = document.getElementById('system-logs');
+                if (!logContainer) return;
+
+                const messages = [
+                    "SCANNING SECTOR 001...  NO ANOMALIES DETECTED.",
+                    "ATMOSPHERIC PRESSURE NOMINAL.",
+                    "ROUTING POWER TO SUBSPACE COMMUNICATIONS.",
+                    "WARNING: MINOR FLUCTUATIONS IN EPS CONDUIT 4.",
+                    "INCOMING TRANSMISSION: GARBLED DATA SEQUENCE [0xFA99B2].",
+                    "ALIGNING SENSOR ARRAY TO GRID 4-ALPHA.",
+                    "DIAGNOSTIC COMPLETE. ALL SYSTEMS OPERATIONAL.",
+                    "RECALIBRATING DEFLECTOR DISH POLARITY.",
+                    "SHIELD HARMONICS AT 87%.",
+                    "AWAITING CLEARANCE FOR SHUTTLE BAY 2.",
+                    "SUBSPACE INTERFERENCE DETECTED IN QUADRANT 9.",
+                    "ADJUSTING LIFE SUPPORT PARAMETERS.",
+                    "UPLINK ESTABLISHED WITH STARFLEET COMMAND.",
+                    "SCANNING FOR LIFE FORMS...",
+                    "UNKNOWN ENERGY SIGNATURE DETECTED AT GRID 7-DELTA.",
+                    "TELEMETRY DATA TRANSMISSION: COMPLETE.",
+                    "INITIATING WARP FIELD SEQUENCE.",
+                    "WARNING: WARP CORE ISOLATION FAILURE. ENGAGING SAFETY PROTOCOLS.",
+                    "NAVIGATION COMPUTER ALIGNED.",
+                    "SHIELDS AT FULL POWER.",
+                    "MAINTAINING ORBIT AROUND PLANET CLASS-M.",
+                    "ENGINES AT IDLE. POWERING DOWN.",
+                    "PAGING CETACEAN OPS",
+                    "WARNING: CLASS 3 WARP CORE FLUCTUATIONS DETECTED",
+                    "STATUS: ALL SYSTEMS NOMINAL",
+                    "TELEMETRY DATA TRANSMISSION: COMPLETE",
+                    "COMMUNITY BOARD MEETING AT 1400 HOURS",
+                    "HOLODECK BIO FILTER CLOG 0x224F01",
+                    "WARNING: DELTA-7 STASIS FIELD FLUCTUATING",
+                    "KHAAAAAAAAN!",
+                    "THERE BE WHALES HERE 🐋🐋",
+                    "I'M FROM IOWA, I ONLY WORK IN SPACE",
+                    "I CAN LIVE WITH IT. COMPUTER, ERASE THAT ENTIRE PERSONAL LOG.",
+                    "LIGHT COUNTING COMPLETE, FOUR DETECTED",
+                    "TACHYONING INVERTED BEAMS",
+                    "INVERTING TACHYON BEAMS",
+                    "COMMENCING NEBULA COFFEE SCAN",
+                    "OFFICE INTELLIGENT LIFE SCAN COMPLETE, THAT WAS FAST",
+                    "INITIATING REPLICATOR SEQUENCE, ORDER NUMBER ONE",
+                    "WARNING: COFFEE LEVELS DETECTED BELOW 10% CAPACITY",
+                    "RECALIBRATING BEAM-IN SEQUENCE",
+                    "RE-READING SHAKESPEARE IN ORIGINAL KLINGON",
+                    "PROGRAMMING IN MULTIPLE TECHNIQUES..."
+                ];
+
+                const addLog = () => {
+                    const msg = messages[Math.floor(Math.random() * messages.length)];
+                    const isAlert = msg.includes("WARNING");
+                    const line = document.createElement('div');
+                    line.className = 'log-line' + (isAlert ? ' alert' : '');
+
+                    const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+                    line.textContent = `[${time}] > ${msg}`;
+
+                    logContainer.appendChild(line);
+
+                    if (logContainer.children.length > 7) {
+                        logContainer.removeChild(logContainer.firstChild);
+                    }
+
+                    // Schedule next log (random interval between 1.5s and 5s)
+                    setTimeout(addLog, Math.random() * 3500 + 1500);
+                };
+
+                // Start initial log after 1 second
+                setTimeout(addLog, 1000);
+            }
+
+            updateStatus(status) {
+                const statusEl = document.getElementById('connection-status');
+                if (!statusEl) return;
+
+                statusEl.className = `header-status ${status}`;
+
+                if (status === 'connected') {
+                    statusEl.textContent = 'LINK ACTIVE';
+                } else if (status === 'reconnecting') {
+                    statusEl.textContent = 'ACQUIRING SIGNAL...';
+                } else {
+                    statusEl.textContent = 'LINK SEVERED';
+                }
+            }
+
+            renderSpots(spots) {
+                for (const spot of spots) {
+                    const pill = document.getElementById(`space-${spot.id}`);
+                    const statusText = document.getElementById(`${spot.id}_status`);
+                    const timestampText = document.getElementById(`${spot.id}_timestamp`);
+
+                    if (pill) {
+                        pill.className = `parking-pill ${spot.status}`;
+                    }
+
+                    if (statusText) {
+                        statusText.textContent = spot.status === 'occupied' ? 'SHUTTLE DOCKED' : 'BAY AVAILABLE';
+                    }
+
+                    if (timestampText) {
+                        timestampText.textContent = new Date(spot.timestamp).toLocaleTimeString();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('load', () => {
+            new LCARSManager();
+        });
+    </script>
+</body>
+
+</html>

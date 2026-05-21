@@ -10,93 +10,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet" />
 
-    <!-- Load Local Config -->
+    <!-- Load Local Config and Shared Logic -->
     <script src="config.js"></script>
+    <script src="app.js"></script>
 
     <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+    <!-- Theme Stylesheet -->
+    <link rel="stylesheet" href="themes.css" />
+
     <style>
-        body {
-            background-color: #333333;
-        }
-
-        .title {
-            color: yellow;
-            text-align: center;
-        }
-
-        .parking-lot {
-            min-height: 200px;
-            display: flex;
-        }
-
-        .parking-space {
-            width: 100px;
-            color: yellow;
-            text-align: center;
-            font-size: 80px;
-            font-family: "Stick No Bills", sans-serif;
-            font-optical-sizing: auto;
-            font-weight: 700;
-            font-style: bold;
-        }
-
-        .parking-line {
-            width: 12px;
-            background-color: yellow;
-            border-radius: 3px;
-        }
-
-        .sign {
-            break-after: auto;
-            width: 160px;
-            border: 2px solid white;
-            border-radius: 8px;
-            font-family: "Overpass", sans-serif;
-            font-size: 30px;
-            text-align: center;
-            line-break: auto;
-            padding: 6px;
-            background-color: green;
-            margin-right: 18px;
-        }
-
-        .sign-top {
-            background-color: green;
-            border-radius: 8px;
-            height: 40%;
-            color: white;
-        }
-
-        .sign-bottom {
-            background-color: white;
-            border-radius: 8px;
-            padding-top: 16px;
-            color: green;
-            font-size: 72px;
-        }
-
-        .timestamp {
-            font-size: 10px;
-            color: white;
-            font-family: "Overpass", sans-serif;
-        }
-
         .connection-status {
             position: fixed;
             top: 10px;
             right: 10px;
             padding: 5px 10px;
             border-radius: 4px;
-            font-family: "Overpass", sans-serif;
+            font-family: var(--font-secondary, "Overpass", sans-serif);
             font-size: 12px;
             color: white;
             display: flex;
             align-items: center;
             gap: 6px;
             background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
         }
 
         .status-dot {
@@ -164,7 +103,17 @@
     </style>
 </head>
 
-<body>
+<body class="theme-classic">
+
+    <div class="theme-selector">
+        <select id="theme-dropdown">
+            <option value="theme-classic">Classic Theme</option>
+            <option value="theme-cyberpunk">Cyberpunk Dashboard</option>
+            <option value="theme-literal">Literal Asphalt</option>
+            <option value="theme-light">Light Kiosk</option>
+        </select>
+    </div>
+
     <div id="connection-status" class="connection-status disconnected">
         <span class="status-dot"></span>
         <span class="status-text">Disconnected</span>
@@ -182,7 +131,7 @@
 
         <div class="parking-line"></div>
 
-        <div class="parking-space">
+        <div class="parking-space" id="space-spot1">
             1
             <br />
             <i id="spot1"></i>
@@ -192,7 +141,7 @@
 
         <div class="parking-line"></div>
 
-        <div class="parking-space">
+        <div class="parking-space" id="space-spot2">
             2
             <br />
             <i id="spot2"></i>
@@ -202,7 +151,7 @@
 
         <div class="parking-line"></div>
 
-        <div class="parking-space">
+        <div class="parking-space" id="space-spot3">
             3
             <br />
             <i id="spot3"></i>
@@ -212,7 +161,7 @@
 
         <div class="parking-line"></div>
 
-        <div class="parking-space">
+        <div class="parking-space" id="space-spot4">
             4
             <br />
             <i id="spot4"></i>
@@ -230,142 +179,28 @@
 </body>
 
 <script type="text/javascript">
-    class DebugConsole {
-        constructor() {
-            this.console = document.getElementById('debug-console');
-            this.content = document.getElementById('debug-content');
-            this.isVisible = false;
-            this.maxEntries = 100;
-            this.setupKeyboardListener();
+    // UI AND THEME PRESENTATION LAYER
+    class UIManager {
+        constructor(debugConsole) {
+            this.debug = debugConsole;
+            this.setupThemeSelector();
         }
 
-        toggle() {
-            this.isVisible = !this.isVisible;
-            this.console.classList.toggle('visible');
-        }
+        setupThemeSelector() {
+            const dropdown = document.getElementById('theme-dropdown');
+            const savedTheme = localStorage.getItem('parking-theme') || 'theme-classic';
 
-        log(message, type = 'info') {
-            const entry = document.createElement('div');
-            entry.className = `debug-entry ${type}`;
+            // Set initial theme
+            document.body.className = savedTheme;
+            dropdown.value = savedTheme;
 
-            const timestamp = document.createElement('span');
-            timestamp.className = 'timestamp';
-            timestamp.textContent = new Date().toLocaleTimeString();
-
-            const content = document.createElement('span');
-            content.className = 'content';
-            content.textContent = message;
-
-            entry.appendChild(timestamp);
-            entry.appendChild(content);
-
-            this.content.appendChild(entry);
-
-            // Limit the number of entries
-            while (this.content.children.length > this.maxEntries) {
-                this.content.removeChild(this.content.firstChild);
-            }
-
-            // Auto-scroll to bottom
-            this.console.scrollTop = this.console.scrollHeight;
-        }
-
-        error(message) {
-            this.log(message, 'error');
-        }
-
-        warning(message) {
-            this.log(message, 'warning');
-        }
-
-        setupKeyboardListener() {
-            document.addEventListener('keydown', (event) => {
-                if (event.key === '`' || event.key === '~') {
-                    this.toggle();
-                }
+            // Listen for changes
+            dropdown.addEventListener('change', (e) => {
+                const newTheme = e.target.value;
+                document.body.className = newTheme;
+                localStorage.setItem('parking-theme', newTheme);
+                this.debug.log(`Theme changed to: ${newTheme}`);
             });
-        }
-    }
-
-    class FirebaseManager {
-        constructor() {
-            this.projectId = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.projectId) || "your-gcp-project-id";
-            this.db = null;
-            this.debug = new DebugConsole();
-            this.isFirstLoad = true;
-
-            this.initialize();
-        }
-
-        initialize() {
-            try {
-                this.updateStatus('reconnecting');
-                this.debug.log(`Initializing Firebase for project: ${this.projectId}`);
-
-                // Initialize Firebase Compat
-                firebase.initializeApp({
-                    projectId: this.projectId
-                });
-
-                this.db = firebase.firestore();
-                this.debug.log('Firebase initialized. Setting up real-time Firestore listener...');
-
-                this.setupListener();
-            } catch (error) {
-                this.debug.error(`Firebase init error: ${error.message}`);
-                this.updateStatus('disconnected');
-            }
-        }
-
-        setupListener() {
-            this.db.collection("spots").doc("state").onSnapshot(
-                (doc) => {
-                    this.updateStatus('connected');
-                    const spots = [];
-                    const data = doc.exists ? doc.data() : {};
-
-                    for (let i = 1; i <= 4; i++) {
-                        const spotKey = `spot${i}`;
-                        const spotData = data[spotKey] || { status: 'unoccupied', timestamp: Date.now() };
-                        spots.push({
-                            id: spotKey,
-                            status: spotData.status,
-                            timestamp: spotData.timestamp
-                        });
-                    }
-
-                    if (!doc.exists) {
-                        this.debug.warning('No spot state document found. Using default unoccupied state.');
-                    } else {
-                        this.debug.log(`Received real-time update for ${spots.length} spots`);
-                    }
-
-                    this.updateParkingSpots(spots);
-                },
-                (error) => {
-                    this.debug.error(`Firestore error: ${error.message}`);
-                    this.updateStatus('disconnected');
-                }
-            );
-        }
-
-        updateParkingSpots(spots) {
-            for (const spot of spots) {
-                const iconClass = spot.status === 'unoccupied' ? 'bi bi-check2-square' : 'bi bi-x-square';
-                const iconStyle = spot.status === 'unoccupied' ? 'color: green;' : 'color: red;';
-
-                const iconElement = document.getElementById(spot.id);
-                const timestampElement = document.getElementById(`${spot.id}_timestamp`);
-
-                if (iconElement) {
-                    iconElement.className = iconClass;
-                    iconElement.style = iconStyle;
-                }
-
-                if (timestampElement) {
-                    timestampElement.innerText = new Date(spot.timestamp).toLocaleTimeString();
-                }
-            }
         }
 
         updateStatus(status) {
@@ -374,23 +209,52 @@
 
             if (statusElement && statusTextElement) {
                 statusElement.className = `connection-status ${status}`;
-
                 let displayText = status.charAt(0).toUpperCase() + status.slice(1);
                 if (status === 'connected') {
                     displayText = 'Real-time (Firebase)';
                 } else if (status === 'reconnecting') {
                     displayText = 'Connecting';
                 }
-
                 statusTextElement.textContent = displayText;
-                this.debug.log(`Status updated to: ${displayText}`);
+            }
+        }
+
+        renderSpots(spots) {
+            for (const spot of spots) {
+                // Update parent container class for theme targeting
+                const spaceContainer = document.getElementById(`space-${spot.id}`);
+                if (spaceContainer) {
+                    spaceContainer.className = `parking-space ${spot.status}`;
+                }
+
+                const iconElement = document.getElementById(spot.id);
+                const timestampElement = document.getElementById(`${spot.id}_timestamp`);
+
+                if (iconElement) {
+                    // We only manage the icon class here. The colors/borders are managed by themes.css
+                    iconElement.className = spot.status === 'unoccupied' ? 'bi bi-check2-square' : 'bi bi-x-square';
+                    // Clear hardcoded inline styles so CSS can take over
+                    iconElement.style = '';
+                }
+
+                if (timestampElement) {
+                    timestampElement.innerText = new Date(spot.timestamp).toLocaleTimeString();
+                }
             }
         }
     }
 
-    // Initialize Firebase manager when the page loads
+    // App Initialization
     window.addEventListener('load', () => {
-        new FirebaseManager();
+        const debugConsole = new DebugConsole();
+        const uiManager = new UIManager(debugConsole);
+
+        // Pass callbacks to FirebaseManager so it doesn't touch the DOM directly
+        new FirebaseManager(
+            debugConsole,
+            (spots) => uiManager.renderSpots(spots),
+            (status) => uiManager.updateStatus(status)
+        );
     });
 </script>
 

@@ -1,0 +1,274 @@
+/* Base variables and transitions */
+:root {
+    --bg-color: #333333;
+    --text-color: yellow;
+    --accent-color: yellow;
+    --line-color: yellow;
+    --sign-border: white;
+    --sign-bg-top: green;
+    --sign-bg-bottom: white;
+    --sign-text-top: white;
+    --sign-text-bottom: green;
+    --spot-border: transparent;
+    --spot-bg: transparent;
+    --font-primary: "Stick No Bills", sans-serif;
+    --font-secondary: "Overpass", sans-serif;
+    --shadow: none;
+    --border-radius: 0px;
+    --line-style: solid;
+}
+
+body {
+    background-color: var(--bg-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 0;
+    padding: 20px;
+}
+
+.theme-selector {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+}
+
+.theme-selector select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 1px solid #555;
+    font-family: var(--font-secondary);
+    cursor: pointer;
+    outline: none;
+}
+
+/* Base structural styles (theme agnostic) */
+.parking-lot {
+    min-height: 200px;
+    display: flex;
+    margin-top: 60px;
+}
+
+.parking-space {
+    width: 140px;
+    color: var(--text-color);
+    text-align: center;
+    font-size: 60px;
+    font-family: var(--font-primary);
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--spot-bg);
+    border: var(--spot-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    margin: 0 10px;
+    padding: 20px 0;
+}
+
+.parking-line {
+    width: 12px;
+    background-color: var(--line-color);
+    border-radius: 3px;
+    border-style: var(--line-style);
+}
+
+.sign {
+    width: 160px;
+    border: 2px solid var(--sign-border);
+    border-radius: 8px;
+    font-family: var(--font-secondary);
+    font-size: 30px;
+    text-align: center;
+    padding: 6px;
+    background-color: var(--sign-bg-top);
+    margin-right: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sign-top {
+    background-color: var(--sign-bg-top);
+    border-radius: 8px;
+    height: 40%;
+    color: var(--sign-text-top);
+}
+
+.sign-bottom {
+    background-color: var(--sign-bg-bottom);
+    border-radius: 8px;
+    padding-top: 16px;
+    color: var(--sign-text-bottom);
+    font-size: 72px;
+    flex-grow: 1;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: var(--text-color);
+    font-family: var(--font-secondary);
+    opacity: 0.8;
+    margin-top: 10px;
+}
+
+/* =========================================
+   THEME: CLASSIC (Default)
+   ========================================= */
+body.theme-classic {
+    /* Uses root defaults */
+}
+.theme-classic .parking-space {
+    margin: 0;
+}
+.theme-classic .parking-line {
+    margin: 0;
+}
+
+/* =========================================
+   THEME: CYBERPUNK
+   ========================================= */
+body.theme-cyberpunk {
+    --bg-color: #0b0c10;
+    --text-color: #45a29e;
+    --line-color: transparent;
+    --sign-bg-top: #1f2833;
+    --sign-bg-bottom: #0b0c10;
+    --sign-text-top: #66fcf1;
+    --sign-text-bottom: #66fcf1;
+    --sign-border: #45a29e;
+    --spot-bg: rgba(31, 40, 51, 0.6);
+    --spot-border: 2px solid #45a29e;
+    --border-radius: 12px;
+    --shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+    --font-primary: 'Courier New', Courier, monospace;
+}
+body.theme-cyberpunk .parking-space.unoccupied {
+    --spot-border: 2px solid #66fcf1;
+    --shadow: 0 0 20px rgba(102, 252, 241, 0.4);
+    --text-color: #66fcf1;
+}
+body.theme-cyberpunk .parking-space.occupied {
+    --spot-border: 2px solid #ff003c;
+    --shadow: 0 0 20px rgba(255, 0, 60, 0.4);
+    --text-color: #ff003c;
+}
+body.theme-cyberpunk .parking-line {
+    display: none; /* Hide lines in card layout */
+}
+
+/* =========================================
+   THEME: LITERAL ASPHALT
+   ========================================= */
+body.theme-literal {
+    --bg-color: #2c2f33; /* Asphalt */
+    --text-color: white;
+    --line-color: transparent;
+    --sign-bg-top: #2c2f33;
+    --sign-bg-bottom: #23272a;
+    --sign-border: #f1c40f;
+    --sign-text-top: #f1c40f;
+    --sign-text-bottom: #f1c40f;
+}
+body.theme-literal .parking-lot {
+    background: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px);
+    padding: 20px;
+    border-radius: 10px;
+}
+body.theme-literal .parking-line {
+    background-color: transparent;
+    border-right: 8px dashed #f1c40f; /* Painted line */
+    width: 0;
+    margin: 0 10px;
+}
+body.theme-literal .parking-space {
+    border: 2px solid rgba(255,255,255,0.1);
+    background-color: rgba(0,0,0,0.2);
+}
+
+/* =========================================
+   THEME: LIGHT KIOSK
+   ========================================= */
+body.theme-light {
+    --bg-color: #f4f7f6;
+    --text-color: #333;
+    --line-color: transparent;
+    --sign-bg-top: #00b4d8;
+    --sign-bg-bottom: white;
+    --sign-text-top: white;
+    --sign-text-bottom: #00b4d8;
+    --sign-border: transparent;
+    --spot-bg: white;
+    --spot-border: 1px solid #e0e0e0;
+    --border-radius: 20px;
+    --shadow: 0 10px 30px rgba(0,0,0,0.05);
+    --font-primary: "Overpass", sans-serif;
+}
+body.theme-light .parking-space.unoccupied {
+    --spot-bg: #e3fcef;
+    --spot-border: 1px solid #38d39f;
+    --text-color: #2b9348;
+}
+body.theme-light .parking-space.occupied {
+    --spot-bg: #ffe8e8;
+    --spot-border: 1px solid #ff6b6b;
+    --text-color: #c92a2a;
+}
+body.theme-light .parking-line {
+    display: none;
+}
+
+/* =========================================
+   THEME: STARFLEET LCARS
+   ========================================= */
+body.theme-lcars {
+    --bg-color: #000000;
+    --text-color: #000000;
+    --line-color: transparent;
+    --sign-bg-top: #ff9900;
+    --sign-bg-bottom: #cc99cc;
+    --sign-text-top: #000000;
+    --sign-text-bottom: #000000;
+    --sign-border: transparent;
+    --spot-bg: #ffcc99;
+    --spot-border: transparent;
+    --border-radius: 50px 10px 10px 50px;
+    --font-primary: "Overpass", sans-serif;
+    --font-secondary: "Overpass", sans-serif;
+}
+body.theme-lcars .parking-lot {
+    gap: 15px;
+}
+body.theme-lcars .parking-space {
+    text-align: right;
+    align-items: flex-end;
+    padding-right: 20px;
+    font-weight: 900;
+}
+body.theme-lcars .parking-space.unoccupied {
+    --spot-bg: #cc99cc;
+    --text-color: #000000;
+}
+body.theme-lcars .parking-space.occupied {
+    --spot-bg: #cc0000;
+    --text-color: #000000;
+}
+body.theme-lcars .parking-line {
+    display: none;
+}
+body.theme-lcars .sign {
+    border-radius: 10px 50px 50px 10px;
+    background-color: transparent;
+}
+body.theme-lcars .sign-top {
+    border-radius: 10px 50px 0 0;
+    text-align: right;
+    padding-right: 15px;
+    font-weight: bold;
+}
+body.theme-lcars .sign-bottom {
+    border-radius: 0 0 50px 10px;
+}
