@@ -1,0 +1,17 @@
+# Deno / Node
+node_modules/
+.env
+functions/spot-handler.zip
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+
+# Local Frontend Config
+static/config.js
+
+.vscode

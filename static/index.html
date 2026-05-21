@@ -10,6 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet" />
 
+    <!-- Load Local Config -->
+    <script src="config.js"></script>
+
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         body {
             background-color: #333333;
@@ -280,83 +287,66 @@
         }
     }
 
-    class WebSocketManager {
-        constructor(url) {
-            this.url = url;
-            this.socket = null;
-            this.reconnectAttempts = 0;
-            this.maxReconnectAttempts = 5;
-            this.reconnectDelay = 5000;
-            this.maxReconnectDelay = 30000;
-            this.appVersion = null;
-            this.lastMessageTimestamp = Date.now();
-            this.isFirstDisconnect = true;
+    class FirebaseManager {
+        constructor() {
+            this.projectId = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.projectId) || "your-gcp-project-id";
+            this.db = null;
             this.debug = new DebugConsole();
+            this.isFirstLoad = true;
 
-            this.connect();
-            this.setupHealthCheck();
+            this.initialize();
         }
 
-        connect() {
+        initialize() {
             try {
                 this.updateStatus('reconnecting');
-                this.socket = new WebSocket(this.url);
-                this.setupEventListeners();
-                this.debug.log(`Attempting connection to ${this.url}`);
+                this.debug.log(`Initializing Firebase for project: ${this.projectId}`);
+
+                // Initialize Firebase Compat
+                firebase.initializeApp({
+                    projectId: this.projectId
+                });
+
+                this.db = firebase.firestore();
+                this.debug.log('Firebase initialized. Setting up real-time Firestore listener...');
+
+                this.setupListener();
             } catch (error) {
-                this.debug.error(`Connection error: ${error.message}`);
-                this.handleConnectionFailure();
+                this.debug.error(`Firebase init error: ${error.message}`);
+                this.updateStatus('disconnected');
             }
         }
 
-        setupEventListeners() {
-            this.socket.onopen = () => {
-                this.debug.log('WebSocket connected successfully');
-                this.updateStatus('connected');
-                this.reconnectAttempts = 0;
-                this.reconnectDelay = 5000;
-                this.isFirstDisconnect = true;
-            };
+        setupListener() {
+            this.db.collection("spots").doc("state").onSnapshot(
+                (doc) => {
+                    this.updateStatus('connected');
+                    const spots = [];
+                    const data = doc.exists ? doc.data() : {};
 
-            this.socket.onclose = () => {
-                this.debug.warning('WebSocket connection closed');
-                this.updateStatus('disconnected');
-                this.handleConnectionFailure();
-            };
-
-            this.socket.onerror = (error) => {
-                this.debug.error(`WebSocket error: ${error.message || 'Unknown error'}`);
-                this.updateStatus('disconnected');
-            };
-
-            this.socket.onmessage = (event) => {
-                this.lastMessageTimestamp = Date.now();
-                this.handleMessage(event);
-            };
-        }
-
-        handleMessage(event) {
-            try {
-                if (event.data.includes('pong-')) {
-                    const currentAppVersion = event.data.split('-')[1];
-                    this.debug.log(`Received pong with version: ${currentAppVersion}`);
-
-                    if (this.appVersion === null) {
-                        this.appVersion = currentAppVersion;
+                    for (let i = 1; i <= 4; i++) {
+                        const spotKey = `spot${i}`;
+                        const spotData = data[spotKey] || { status: 'unoccupied', timestamp: Date.now() };
+                        spots.push({
+                            id: spotKey,
+                            status: spotData.status,
+                            timestamp: spotData.timestamp
+                        });
                     }
-                    if (this.appVersion !== currentAppVersion) {
-                        this.debug.warning(`App version changed from ${this.appVersion} to ${currentAppVersion}`);
-                        this.reloadPage(5);
+
+                    if (!doc.exists) {
+                        this.debug.warning('No spot state document found. Using default unoccupied state.');
+                    } else {
+                        this.debug.log(`Received real-time update for ${spots.length} spots`);
                     }
-                    return;
+
+                    this.updateParkingSpots(spots);
+                },
+                (error) => {
+                    this.debug.error(`Firestore error: ${error.message}`);
+                    this.updateStatus('disconnected');
                 }
-
-                const spots = JSON.parse(event.data);
-                this.debug.log(`Received update for ${spots.length} parking spots`);
-                this.updateParkingSpots(spots);
-            } catch (error) {
-                this.debug.error(`Error handling message: ${error.message}`);
-            }
+            );
         }
 
         updateParkingSpots(spots) {
@@ -378,46 +368,6 @@
             }
         }
 
-        handleConnectionFailure() {
-            if (this.reconnectAttempts < this.maxReconnectAttempts) {
-                this.reconnectAttempts++;
-                this.reconnectDelay = Math.min(this.reconnectDelay * 1.5, this.maxReconnectDelay);
-
-                const message = `Attempting to reconnect in ${this.reconnectDelay / 1000} seconds... (Attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`;
-                this.debug.warning(message);
-
-                setTimeout(() => this.connect(), this.reconnectDelay);
-            } else {
-                this.debug.error('Max reconnection attempts reached. Reloading page...');
-                this.reloadPage(5);
-            }
-        }
-
-        setupHealthCheck() {
-            // Send ping every minute
-            setInterval(() => {
-                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-                    try {
-                        this.socket.send('ping');
-                        this.debug.log('Ping sent');
-                    } catch (error) {
-                        this.debug.error(`Error sending ping: ${error.message}`);
-                        this.handleConnectionFailure();
-                    }
-                }
-            }, 60000);
-
-            // Check connection health every minute
-            setInterval(() => {
-                const now = Date.now();
-                const timeSinceLastMessage = now - this.lastMessageTimestamp;
-                if (timeSinceLastMessage > 300000) {
-                    this.debug.error(`No messages received for ${timeSinceLastMessage / 1000} seconds. Reloading page...`);
-                    this.reloadPage(5);
-                }
-            }, 60000);
-        }
-
         updateStatus(status) {
             const statusElement = document.getElementById('connection-status');
             const statusTextElement = statusElement.querySelector('.status-text');
@@ -426,27 +376,21 @@
                 statusElement.className = `connection-status ${status}`;
 
                 let displayText = status.charAt(0).toUpperCase() + status.slice(1);
-                if (status === 'disconnected' && this.isFirstDisconnect) {
-                    displayText = 'Refreshing';
-                    this.isFirstDisconnect = false;
+                if (status === 'connected') {
+                    displayText = 'Real-time (Firebase)';
+                } else if (status === 'reconnecting') {
+                    displayText = 'Connecting';
                 }
 
                 statusTextElement.textContent = displayText;
                 this.debug.log(`Status updated to: ${displayText}`);
             }
         }
-
-        reloadPage(delaySeconds) {
-            this.debug.warning(`Page will reload in ${delaySeconds} seconds`);
-            setTimeout(() => window.location.reload(), delaySeconds * 1000);
-        }
     }
 
-    // Initialize WebSocket manager when the page loads
+    // Initialize Firebase manager when the page loads
     window.addEventListener('load', () => {
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const wsUrl = `${protocol}://${window.location.hostname}:${window.location.port}/ws`;
-        new WebSocketManager(wsUrl);
+        new FirebaseManager();
     });
 </script>
 
