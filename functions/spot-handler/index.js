@@ -117,7 +117,14 @@ ff.http('spotHandler', async (req, res) => {
 
     // 4. Grouped History: GET /parking_lot/history
     if (path === '/parking_lot/history' && req.method === 'GET') {
-      const snapshot = await firestore.collection('history').orderBy('timestamp', 'asc').get();
+      const hours = parseInt(req.query.hours, 10) || 24;
+      const cutoff = Date.now() - (hours * 60 * 60 * 1000);
+      
+      const snapshot = await firestore.collection('history')
+        .where('timestamp', '>=', cutoff)
+        .orderBy('timestamp', 'asc')
+        .get();
+        
       const history = {
         spot1: {},
         spot2: {},

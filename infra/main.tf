@@ -127,7 +127,7 @@ resource "google_cloud_run_service_iam_member" "public_access" {
 
 # Create a GCS bucket for hosting the static website
 resource "google_storage_bucket" "static_site" {
-  name                        = "parking-lot-static-site-${random_id.bucket_suffix.hex}"
+  name                        = "300-apollo-chargers.n8eye200.cloud"
   location                    = var.region
   uniform_bucket_level_access = true
   force_destroy               = true
@@ -173,6 +173,8 @@ resource "google_storage_bucket_object" "static_files" {
     split(".", each.value)[length(split(".", each.value)) - 1], 
     "application/octet-stream"
   )
+
+  cache_control = "no-store, no-cache, must-revalidate, max-age=0"
 }
 
 output "function_url" {

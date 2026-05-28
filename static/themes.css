@@ -25,29 +25,90 @@ body {
     padding: 20px;
 }
 
+/* Footer & Stats Styling */
+.dashboard-footer {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    font-family: var(--font-secondary);
+    color: var(--text-color);
+}
+
+.stats-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 800px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius, 8px);
+    padding: 15px 25px;
+    min-width: 180px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--font-primary);
+}
+
+.footer-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
 .theme-selector {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
 }
 
 .theme-selector select {
-    padding: 8px 12px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: 1px solid #555;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
     font-family: var(--font-secondary);
+    font-size: 14px;
     cursor: pointer;
     outline: none;
+    transition: all 0.3s ease;
 }
+
+.theme-selector select:hover {
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 10px var(--text-color);
+}
+
 
 /* Base structural styles (theme agnostic) */
 .parking-lot {
     min-height: 200px;
     display: flex;
-    margin-top: 60px;
+    justify-content: center;
 }
 
 .parking-space {
@@ -121,11 +182,33 @@ body {
 body.theme-classic {
     /* Uses root defaults */
 }
+
 .theme-classic .parking-space {
     margin: 0;
 }
+
+.theme-classic .parking-space.unoccupied {
+    color: #2ecc71;
+    text-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+}
+
+.theme-classic .parking-space.occupied {
+    color: #e74c3c;
+    text-shadow: 0 0 8px rgba(231, 76, 60, 0.4);
+}
+
 .theme-classic .parking-line {
     margin: 0;
+}
+
+.theme-classic .stat-card {
+    border: 1px solid yellow;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.theme-classic .stat-value {
+    color: yellow;
+    text-shadow: 0 0 8px rgba(255, 255, 0, 0.3);
 }
 
 /* =========================================
@@ -146,25 +229,42 @@ body.theme-cyberpunk {
     --shadow: 0 0 15px rgba(102, 252, 241, 0.2);
     --font-primary: 'Courier New', Courier, monospace;
 }
+
 body.theme-cyberpunk .parking-space.unoccupied {
     --spot-border: 2px solid #66fcf1;
     --shadow: 0 0 20px rgba(102, 252, 241, 0.4);
     --text-color: #66fcf1;
 }
+
 body.theme-cyberpunk .parking-space.occupied {
     --spot-border: 2px solid #ff003c;
     --shadow: 0 0 20px rgba(255, 0, 60, 0.4);
     --text-color: #ff003c;
 }
+
 body.theme-cyberpunk .parking-line {
-    display: none; /* Hide lines in card layout */
+    display: none;
+    /* Hide lines in card layout */
+}
+
+body.theme-cyberpunk .stat-card {
+    background: rgba(31, 40, 51, 0.6);
+    border: 2px solid #45a29e;
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+    color: #45a29e;
+}
+
+body.theme-cyberpunk .stat-value {
+    color: #66fcf1;
+    text-shadow: 0 0 8px #66fcf1;
 }
 
 /* =========================================
    THEME: LITERAL ASPHALT
    ========================================= */
 body.theme-literal {
-    --bg-color: #2c2f33; /* Asphalt */
+    --bg-color: #2c2f33;
+    /* Asphalt */
     --text-color: white;
     --line-color: transparent;
     --sign-bg-top: #2c2f33;
@@ -173,20 +273,44 @@ body.theme-literal {
     --sign-text-top: #f1c40f;
     --sign-text-bottom: #f1c40f;
 }
+
 body.theme-literal .parking-lot {
-    background: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px);
+    background: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255, 255, 255, 0.05) 20px, rgba(255, 255, 255, 0.05) 40px);
     padding: 20px;
     border-radius: 10px;
 }
+
 body.theme-literal .parking-line {
     background-color: transparent;
-    border-right: 8px dashed #f1c40f; /* Painted line */
+    border-right: 8px dashed #f1c40f;
+    /* Painted line */
     width: 0;
     margin: 0 10px;
 }
+
 body.theme-literal .parking-space {
-    border: 2px solid rgba(255,255,255,0.1);
-    background-color: rgba(0,0,0,0.2);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+body.theme-literal .parking-space.unoccupied {
+    color: #2ecc71;
+    text-shadow: 0 0 5px #2ecc71;
+}
+
+body.theme-literal .parking-space.occupied {
+    color: #e74c3c;
+    text-shadow: 0 0 5px #e74c3c;
+}
+
+body.theme-literal .stat-card {
+    background: rgba(35, 39, 42, 0.8);
+    border: 1px solid #f1c40f;
+    color: #f1c40f;
+}
+
+body.theme-literal .stat-value {
+    color: white;
 }
 
 /* =========================================
@@ -204,21 +328,46 @@ body.theme-light {
     --spot-bg: white;
     --spot-border: 1px solid #e0e0e0;
     --border-radius: 20px;
-    --shadow: 0 10px 30px rgba(0,0,0,0.05);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     --font-primary: "Overpass", sans-serif;
 }
+
 body.theme-light .parking-space.unoccupied {
     --spot-bg: #e3fcef;
     --spot-border: 1px solid #38d39f;
     --text-color: #2b9348;
 }
+
 body.theme-light .parking-space.occupied {
     --spot-bg: #ffe8e8;
     --spot-border: 1px solid #ff6b6b;
     --text-color: #c92a2a;
 }
+
 body.theme-light .parking-line {
     display: none;
+}
+
+body.theme-light .stat-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    color: #333;
+}
+
+body.theme-light .stat-value {
+    color: #00b4d8;
+}
+
+body.theme-light .theme-selector select {
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+}
+
+body.theme-light .theme-selector select:hover {
+    background: #f4f7f6;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
 /* =========================================
@@ -239,36 +388,589 @@ body.theme-lcars {
     --font-primary: "Overpass", sans-serif;
     --font-secondary: "Overpass", sans-serif;
 }
+
 body.theme-lcars .parking-lot {
     gap: 15px;
 }
+
 body.theme-lcars .parking-space {
     text-align: right;
     align-items: flex-end;
     padding-right: 20px;
     font-weight: 900;
 }
+
 body.theme-lcars .parking-space.unoccupied {
     --spot-bg: #cc99cc;
     --text-color: #000000;
 }
+
 body.theme-lcars .parking-space.occupied {
-    --spot-bg: #cc0000;
-    --text-color: #000000;
+    --spot-bg: #ff3333;
+    --text-color: #ffffff;
 }
+
 body.theme-lcars .parking-line {
     display: none;
 }
+
 body.theme-lcars .sign {
     border-radius: 10px 50px 50px 10px;
     background-color: transparent;
 }
+
 body.theme-lcars .sign-top {
     border-radius: 10px 50px 0 0;
     text-align: right;
     padding-right: 15px;
     font-weight: bold;
 }
+
 body.theme-lcars .sign-bottom {
     border-radius: 0 0 50px 10px;
+}
+
+body.theme-lcars .stat-card {
+    background: #ffcc99;
+    border: none;
+    border-radius: 30px 10px 10px 30px;
+    color: #000000;
+}
+
+body.theme-lcars .stat-value {
+    color: #cc0000;
+    font-weight: 900;
+}
+
+body.theme-lcars .theme-selector select {
+    background: #cc99cc;
+    color: #000000;
+    border: none;
+    font-weight: 900;
+}
+
+/* =========================================
+   THEME: GLASS & LED KIOSK
+   ========================================= */
+body.theme-glass {
+    --bg-color: #0d1b2a;
+    --text-color: #e0e1dd;
+    --line-color: rgba(255, 255, 255, 0.1);
+    --sign-bg-top: #1b263b;
+    --sign-bg-bottom: rgba(255, 255, 255, 0.05);
+    --sign-text-top: #e0e1dd;
+    --sign-text-bottom: #415a77;
+    --sign-border: rgba(255, 255, 255, 0.2);
+    --spot-bg: rgba(255, 255, 255, 0.03);
+    --spot-border: 1px solid rgba(255, 255, 255, 0.1);
+    --border-radius: 16px;
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --font-primary: "Overpass", sans-serif;
+}
+
+body.theme-glass::before {
+    content: '';
+    position: fixed;
+    top: 20%;
+    left: 20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0, 180, 216, 0.15) 0%, transparent 70%);
+    z-index: -1;
+    filter: blur(50px);
+}
+
+body.theme-glass::after {
+    content: '';
+    position: fixed;
+    bottom: 20%;
+    right: 20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(231, 76, 60, 0.08) 0%, transparent 70%);
+    z-index: -1;
+    filter: blur(60px);
+}
+
+body.theme-glass .parking-lot {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+}
+
+body.theme-glass .parking-space {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), 0 8px 20px rgba(0,0,0,0.15);
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+body.theme-glass .parking-space.unoccupied {
+    border-color: rgba(46, 204, 113, 0.3);
+    box-shadow: inset 0 2px 4px rgba(46, 204, 113, 0.1), 0 8px 24px rgba(46, 204, 113, 0.05);
+}
+
+body.theme-glass .parking-space.unoccupied i {
+    color: #2ecc71;
+    text-shadow: 0 0 15px #2ecc71, 0 0 30px rgba(46, 204, 113, 0.4);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+body.theme-glass .parking-space.occupied {
+    border-color: rgba(231, 76, 60, 0.3);
+    box-shadow: inset 0 2px 4px rgba(231, 76, 60, 0.1), 0 8px 24px rgba(231, 76, 60, 0.05);
+}
+
+body.theme-glass .parking-space.occupied i {
+    color: #e74c3c;
+    text-shadow: 0 0 15px #e74c3c, 0 0 30px rgba(231, 76, 60, 0.4);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+body.theme-glass .parking-line {
+    background-color: transparent;
+    border-right: 2px dashed rgba(255, 255, 255, 0.15);
+    width: 0;
+}
+
+body.theme-glass .stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+body.theme-glass .stat-value {
+    color: #00b4d8;
+    text-shadow: 0 0 10px rgba(0, 180, 216, 0.3);
+}
+
+body.theme-glass .theme-selector select {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #e0e1dd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+body.theme-glass .theme-selector select:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================
+   THEME: APPLE II MONOCHROME RETRO
+   ========================================= */
+body.theme-apple2 {
+    --bg-color: #000000;
+    --text-color: #33ff33;
+    --line-color: #33ff33;
+    --sign-bg-top: #000000;
+    --sign-bg-bottom: #000000;
+    --sign-text-top: #33ff33;
+    --sign-text-bottom: #33ff33;
+    --sign-border: #33ff33;
+    --spot-bg: #000000;
+    --spot-border: 1px solid #33ff33;
+    --border-radius: 0px;
+    --shadow: none;
+    --font-primary: 'Courier New', Courier, monospace;
+    --font-secondary: 'Courier New', Courier, monospace;
+}
+
+/* CRT Screen Effect - scanlines */
+body.theme-apple2::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2000;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+}
+
+body.theme-apple2 .parking-lot {
+    border: 2px solid #33ff33;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(51, 255, 51, 0.2);
+}
+
+body.theme-apple2 .parking-space {
+    border: 2px solid #33ff33;
+    border-radius: 0px;
+    color: #33ff33;
+    text-shadow: 0 0 5px rgba(51, 255, 51, 0.8);
+    background-color: #000000;
+}
+
+body.theme-apple2 .parking-space.unoccupied {
+    background-color: rgba(51, 255, 51, 0.05);
+}
+
+body.theme-apple2 .parking-space.unoccupied i {
+    color: #33ff33;
+    text-shadow: 0 0 10px #33ff33;
+}
+
+body.theme-apple2 .parking-space.occupied {
+    background-color: rgba(51, 255, 51, 0.15);
+    border-style: dashed;
+}
+
+body.theme-apple2 .parking-space.occupied i {
+    color: #33ff33;
+    text-shadow: 0 0 10px #33ff33;
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% { opacity: 0; }
+}
+
+body.theme-apple2 .parking-line {
+    background-color: transparent;
+    border-right: 2px solid #33ff33;
+    width: 0;
+}
+
+body.theme-apple2 .stat-card {
+    background: #000000;
+    border: 2px solid #33ff33;
+    border-radius: 0px;
+    box-shadow: 0 0 10px rgba(51, 255, 51, 0.15);
+    color: #33ff33;
+}
+
+body.theme-apple2 .stat-value {
+    color: #33ff33;
+    text-shadow: 0 0 5px #33ff33;
+}
+
+body.theme-apple2 .theme-selector select {
+    background: #000000;
+    color: #33ff33;
+    border: 2px solid #33ff33;
+    border-radius: 0px;
+    text-transform: uppercase;
+}
+
+body.theme-apple2 .theme-selector select:hover {
+    background: #33ff33;
+    color: #000000;
+    box-shadow: 0 0 15px #33ff33;
+}
+
+body.theme-apple2 .connection-status {
+    background-color: #000000;
+    border: 1px solid #33ff33;
+    border-radius: 0px;
+    color: #33ff33;
+}
+
+body.theme-apple2 .connected .status-dot {
+    background-color: #33ff33;
+    box-shadow: 0 0 8px #33ff33;
+}
+
+/* =========================================
+   THEME: FLATPACK (IKEA) KIOSK
+   ========================================= */
+body.theme-ikea {
+    --bg-color: #0051ba; /* IKEA Blue */
+    --text-color: #ffda1a; /* IKEA Yellow */
+    --line-color: transparent;
+    --sign-bg-top: #ffda1a;
+    --sign-bg-bottom: #0051ba;
+    --sign-text-top: #0051ba;
+    --sign-text-bottom: #ffda1a;
+    --sign-border: 4px solid #ffda1a;
+    --spot-bg: #d4b290; /* Kraft Cardboard */
+    --spot-border: 2px dashed rgba(0, 0, 0, 0.4);
+    --border-radius: 4px;
+    --shadow: 0 10px 20px rgba(0,0,0,0.3);
+    --font-primary: "Overpass", sans-serif;
+    --font-secondary: "Overpass", sans-serif;
+}
+
+/* Background grid overlay */
+body.theme-ikea::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: radial-gradient(rgba(255, 218, 26, 0.08) 1px, transparent 1px);
+    background-size: 20px 20px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* IKEA Sign styling */
+body.theme-ikea .sign {
+    border-radius: 4px;
+    font-weight: 900;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+    background-color: #ffda1a;
+    width: 180px;
+}
+body.theme-ikea .sign-top {
+    font-family: var(--font-primary);
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    padding: 10px 4px;
+    font-size: 16px;
+    line-height: 1.2;
+}
+body.theme-ikea .sign-bottom {
+    background-color: #0051ba;
+    border-radius: 0 0 4px 4px;
+}
+
+/* Cardboard Box spots */
+body.theme-ikea .parking-space {
+    position: relative;
+    background-color: #d4b290; /* Rich Kraft Cardboard */
+    background-image: linear-gradient(135deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.02) 75%, transparent 75%, transparent);
+    background-size: 8px 8px;
+    border: 3px dashed #7a5c3e; /* cardboard folds */
+    color: #2b1f13; /* Dark brown ink */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.3);
+    overflow: hidden;
+    padding: 25px 15px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Subtitles / Labels inside cardboard spots */
+body.theme-ikea .parking-space .spot-num {
+    font-size: 24px;
+    font-weight: 900;
+    border: 2px solid #2b1f13;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+body.theme-ikea .parking-space .spot-name {
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+body.theme-ikea .parking-space .spot-status {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    margin-top: 12px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+/* Box icons styling */
+body.theme-ikea .ikea-custom-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px 0;
+    color: #2b1f13;
+}
+
+/* Unoccupied box price tag sticker */
+body.theme-ikea .ikea-price-tag-wrapper {
+    background-color: #ffda1a;
+    border: 2.5px solid #2b1f13;
+    color: #2b1f13;
+    padding: 6px 14px;
+    font-family: var(--font-primary);
+    font-weight: 900;
+    font-size: 20px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    box-shadow: 4px 4px 0px #2b1f13;
+    transform: rotate(-3deg);
+    margin: 8px 0;
+    line-height: 1;
+}
+
+body.theme-ikea .ikea-price-currency {
+    font-size: 11px;
+    text-transform: uppercase;
+    align-self: flex-start;
+    margin-top: -3px;
+    font-weight: 900;
+}
+
+body.theme-ikea .ikea-price-value {
+    font-size: 26px;
+    letter-spacing: -1.5px;
+    font-weight: 900;
+}
+
+body.theme-ikea .ikea-price-suffix {
+    font-size: 16px;
+    align-self: flex-end;
+    font-weight: 900;
+}
+
+/* Unoccupied box flap open */
+body.theme-ikea .parking-space.unoccupied {
+    background-color: #e5c29f; /* Lighter open kraft box */
+    border: 3px solid #2b1f13;
+}
+body.theme-ikea .parking-space.unoccupied .spot-status {
+    background-color: #2ecc71; /* Green warning tape */
+    color: white;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+body.theme-ikea .parking-space.unoccupied::after {
+    content: '▼ OPEN TOP / UPP';
+    position: absolute;
+    bottom: 5px;
+    font-size: 8px;
+    font-weight: bold;
+    opacity: 0.6;
+    letter-spacing: 1px;
+}
+
+/* Occupied sealed box decoration */
+body.theme-ikea .parking-space.occupied {
+    background-color: #c49f7b; /* Darker sealed box */
+    border: 3px solid #2b1f13;
+}
+body.theme-ikea .parking-space.occupied .spot-status {
+    background-color: #e74c3c; /* Red warning tape */
+    color: white;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+body.theme-ikea .parking-space.occupied::after {
+    content: '⚠️ SEALED / STÄNGT';
+    position: absolute;
+    bottom: 5px;
+    font-size: 8px;
+    font-weight: bold;
+    opacity: 0.7;
+    letter-spacing: 1px;
+}
+
+/* Add custom cardboard printed detail decals */
+body.theme-ikea .parking-space::before {
+    content: '📦';
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 16px;
+    opacity: 0.75;
+}
+
+/* Hidden line style for cardboard boxes */
+body.theme-ikea .parking-line {
+    display: none;
+}
+
+/* IKEA Price Tag stats styling */
+body.theme-ikea .stat-card {
+    background: #ffda1a;
+    border: 3px solid #2b1f13;
+    color: #2b1f13;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 8px 8px 0px #2b1f13;
+    transform: rotate(-1deg);
+    transition: transform 0.2s ease;
+}
+body.theme-ikea .stat-card:nth-child(2) {
+    transform: rotate(1.5deg);
+}
+body.theme-ikea .stat-card:nth-child(3) {
+    transform: rotate(-2deg);
+}
+body.theme-ikea .stat-card:hover {
+    transform: scale(1.05) rotate(0deg);
+}
+
+/* Little hanging string hole for price tag */
+body.theme-ikea .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background: #0051ba;
+    border: 2px solid #2b1f13;
+    border-radius: 50%;
+}
+
+body.theme-ikea .stat-label {
+    font-family: var(--font-secondary);
+    font-size: 11px;
+    font-weight: 900;
+    color: #2b1f13;
+    opacity: 0.9;
+    margin-top: 8px;
+    text-transform: uppercase;
+}
+
+body.theme-ikea .stat-value {
+    color: #2b1f13;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    text-shadow: none;
+}
+
+/* Theme selector in IKEA color */
+body.theme-ikea .theme-selector select {
+    background: #ffda1a;
+    color: #0051ba;
+    border: 3px solid #0051ba;
+    font-weight: 900;
+    border-radius: 4px;
+}
+body.theme-ikea .theme-selector select:hover {
+    background: #0051ba;
+    color: #ffda1a;
+    box-shadow: 0 0 15px #ffda1a;
+    border-color: #ffda1a;
+}
+
+/* Connection status for IKEA kiosk */
+body.theme-ikea .connection-status {
+    background-color: #ffda1a;
+    border: 3px solid #2b1f13;
+    color: #2b1f13;
+    font-weight: 800;
+    border-radius: 4px;
+    box-shadow: 4px 4px 0px #2b1f13;
+}
+body.theme-ikea .connected .status-dot {
+    background-color: #2ecc71;
+    box-shadow: 0 0 8px #2ecc71;
+    border: 1px solid #2b1f13;
+}
+body.theme-ikea .disconnected .status-dot {
+    background-color: #e74c3c;
+    box-shadow: 0 0 8px #e74c3c;
+    border: 1px solid #2b1f13;
+}
+body.theme-ikea .reconnecting .status-dot {
+    background-color: #e67e22;
+    box-shadow: 0 0 8px #e67e22;
+    border: 1px solid #2b1f13;
 }

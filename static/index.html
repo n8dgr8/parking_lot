@@ -2,29 +2,42 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <title>300 Apollo EV Charging</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@200..800&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+
 
     <!-- Load Local Config and Shared Logic -->
     <script src="config.js"></script>
     <script src="app.js"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F94M6W82PQ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-F94M6W82PQ', {
+            cookie_domain: 'none'
+        });
+    </script>
 
     <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <!-- Theme Stylesheet -->
-    <link rel="stylesheet" href="themes.css" />
+    <link rel="stylesheet" href="themes.css?v=1.1.2" />
 
     <style>
         .connection-status {
             position: fixed;
-            top: 10px;
+            bottom: 10px;
             right: 10px;
             padding: 5px 10px;
             border-radius: 4px;
@@ -105,14 +118,6 @@
 
 <body class="theme-classic">
 
-    <div class="theme-selector">
-        <select id="theme-dropdown">
-            <option value="theme-classic">Classic Theme</option>
-            <option value="theme-cyberpunk">Cyberpunk Dashboard</option>
-            <option value="theme-literal">Literal Asphalt</option>
-            <option value="theme-light">Light Kiosk</option>
-        </select>
-    </div>
 
     <div id="connection-status" class="connection-status disconnected">
         <span class="status-dot"></span>
@@ -121,10 +126,8 @@
 
     <div class="parking-lot">
         <div class="sign">
-            <div class="sign-top">
-                RESERVED PARKING
-            </div>
-            <div class="sign-bottom">
+            <div class="sign-top" id="sign-text">RESERVED PARKING</div>
+            <div class="sign-bottom" id="sign-icon">
                 <i class="bi bi-ev-station-fill"></i>
             </div>
         </div>
@@ -132,51 +135,82 @@
         <div class="parking-line"></div>
 
         <div class="parking-space" id="space-spot1">
-            1
-            <br />
+            <span class="spot-num">1</span>
+            <div id="spot1_name" class="spot-name"></div>
             <i id="spot1"></i>
-            <br />
+            <div id="spot1_status" class="spot-status"></div>
             <div id="spot1_timestamp" class="timestamp"></div>
         </div>
 
         <div class="parking-line"></div>
 
         <div class="parking-space" id="space-spot2">
-            2
-            <br />
+            <span class="spot-num">2</span>
+            <div id="spot2_name" class="spot-name"></div>
             <i id="spot2"></i>
-            <br />
+            <div id="spot2_status" class="spot-status"></div>
             <div id="spot2_timestamp" class="timestamp"></div>
         </div>
 
         <div class="parking-line"></div>
 
         <div class="parking-space" id="space-spot3">
-            3
-            <br />
+            <span class="spot-num">3</span>
+            <div id="spot3_name" class="spot-name"></div>
             <i id="spot3"></i>
-            <br />
+            <div id="spot3_status" class="spot-status"></div>
             <div id="spot3_timestamp" class="timestamp"></div>
         </div>
 
         <div class="parking-line"></div>
 
         <div class="parking-space" id="space-spot4">
-            4
-            <br />
+            <span class="spot-num">4</span>
+            <div id="spot4_name" class="spot-name"></div>
             <i id="spot4"></i>
-            <br />
+            <div id="spot4_status" class="spot-status"></div>
             <div id="spot4_timestamp" class="timestamp"></div>
         </div>
 
         <div class="parking-line"></div>
     </div>
 
+    <div class="dashboard-footer">
+        <div class="stats-container" id="stats-container">
+
+            <div class="stat-card">
+                <div class="stat-label" id="label-active-spot">Most Active Spot (24h)</div>
+                <div class="stat-value" id="stat-active-spot">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" id="label-total-changes">Total State Changes (24h)</div>
+                <div class="stat-value" id="stat-total-changes">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" id="label-popular-spot">Most Popular Spot (24h)</div>
+                <div class="stat-value" id="stat-popular-spot">-</div>
+            </div>
+        </div>
+
+        <div class="footer-controls">
+            <div class="theme-selector">
+                <label for="theme-dropdown"><i class="bi bi-palette-fill"></i> Theme: </label>
+                <select id="theme-dropdown">
+                    <option value="theme-classic">Classic Theme</option>
+                    <option value="theme-cyberpunk">Cyberpunk Dashboard</option>
+                    <option value="theme-literal">Literal Asphalt</option>
+                    <option value="theme-light">Light Kiosk</option>
+                    <option value="theme-glass">Glass &amp; LED Kiosk</option>
+                    <option value="theme-apple2">Apple II Retro Kiosk</option>
+                    <option value="theme-ikea">FLATPACK (IKEA) Kiosk</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <div id="debug-console" class="debug-console">
         <div id="debug-content"></div>
     </div>
-
-</body>
 
 <script type="text/javascript">
     // UI AND THEME PRESENTATION LAYER
@@ -184,6 +218,7 @@
         constructor(debugConsole) {
             this.debug = debugConsole;
             this.setupThemeSelector();
+            this.fetchHistoricalStats();
         }
 
         setupThemeSelector() {
@@ -200,7 +235,112 @@
                 document.body.className = newTheme;
                 localStorage.setItem('parking-theme', newTheme);
                 this.debug.log(`Theme changed to: ${newTheme}`);
+
+                // Re-render spots immediately with the new theme icons
+                if (this.currentSpots) {
+                    this.renderSpots(this.currentSpots);
+                }
+
+                // Track theme change in Google Analytics
+                if (typeof gtag === 'function') {
+                    gtag('event', 'select_content', {
+                        content_type: 'theme',
+                        item_id: newTheme
+                    });
+                }
             });
+        }
+        async fetchHistoricalStats() {
+            try {
+                const projectId = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.projectId) || "parking-lot-496900";
+                const defaultApiUrl = `https://us-central1-${projectId}.cloudfunctions.net/spot-handler`;
+                const baseUrl = window.API_URL || defaultApiUrl;
+                const response = await fetch(`${baseUrl}/parking_lot/history`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const history = await response.json();
+                
+                let totalChanges = 0;
+                let activeSpot = '-';
+                let maxChanges = -1;
+                
+                // Calculate durations for popularity
+                const cutoff = Date.now() - (24 * 60 * 60 * 1000);
+                let popularSpot = '-';
+                let maxDuration = -1;
+                
+                for (const spotId in history) {
+                    const changes = Object.keys(history[spotId]).length;
+                    totalChanges += changes;
+                    if (changes > maxChanges) {
+                        maxChanges = changes;
+                        activeSpot = spotId.replace('spot', 'Spot ');
+                    }
+                    
+                    // Occupancy duration algorithm
+                    const currentSpot = this.currentSpots && this.currentSpots.find(s => s.id === spotId);
+                    const currentStatus = currentSpot ? currentSpot.status : 'unoccupied';
+                    const transitions = history[spotId];
+                    const sorted = Object.entries(transitions)
+                        .map(([t, status]) => ({ timestamp: parseInt(t, 10), status }))
+                        .sort((a, b) => a.timestamp - b.timestamp);
+                        
+                    let duration = 0;
+                    let occupiedStart = null;
+                    
+                    if (sorted.length > 0) {
+                        if (sorted[0].status === 'unoccupied') {
+                            duration += sorted[0].timestamp - cutoff;
+                        }
+                        if (sorted[0].status === 'occupied') {
+                            occupiedStart = sorted[0].timestamp;
+                        }
+                        
+                        for (let i = 1; i < sorted.length; i++) {
+                            const curr = sorted[i];
+                            if (curr.status === 'occupied' && !occupiedStart) {
+                                occupiedStart = curr.timestamp;
+                            } else if (curr.status === 'unoccupied' && occupiedStart) {
+                                duration += curr.timestamp - occupiedStart;
+                                occupiedStart = null;
+                            }
+                        }
+                        if (occupiedStart) {
+                            duration += Date.now() - occupiedStart;
+                        }
+                    } else {
+                        if (currentStatus === 'occupied') {
+                            duration = Date.now() - cutoff;
+                        }
+                    }
+                    
+                    if (duration > maxDuration) {
+                        maxDuration = duration;
+                        popularSpot = spotId.replace('spot', 'Spot ');
+                    }
+                }
+                
+                const totalChangesElem = document.getElementById('stat-total-changes');
+                if (totalChangesElem) {
+                    totalChangesElem.textContent = totalChanges;
+                }
+                
+                const activeSpotElem = document.getElementById('stat-active-spot');
+                if (activeSpotElem) {
+                    activeSpotElem.textContent = maxChanges > 0 ? `${activeSpot} (${maxChanges} flips)` : '-';
+                }
+
+                const popularSpotElem = document.getElementById('stat-popular-spot');
+                if (popularSpotElem) {
+                    if (maxDuration > 0) {
+                        const hours = (maxDuration / (60 * 60 * 1000)).toFixed(1);
+                        popularSpotElem.textContent = `${popularSpot} (${hours}h)`;
+                    } else {
+                        popularSpotElem.textContent = '-';
+                    }
+                }
+            } catch (err) {
+                this.debug.error(`Failed to fetch history: ${err.message}`);
+            }
         }
 
         updateStatus(status) {
@@ -220,6 +360,42 @@
         }
 
         renderSpots(spots) {
+            this.currentSpots = spots;
+            const currentTheme = document.body.className;
+            const isIkea = currentTheme === 'theme-ikea';
+
+            // Dynamically translate header & stats if theme is IKEA
+            const signText = document.getElementById('sign-text');
+            const signIcon = document.getElementById('sign-icon');
+            const labelActiveSpot = document.getElementById('label-active-spot');
+            const labelTotalChanges = document.getElementById('label-total-changes');
+            const labelPopularSpot = document.getElementById('label-popular-spot');
+
+            if (isIkea) {
+                if (signText) signText.innerText = "RESERVERAD PARKERING";
+                if (signIcon) {
+                    signIcon.innerHTML = `<i class="bi bi-ev-station-fill"></i>`;
+                }
+                if (labelActiveSpot) labelActiveSpot.innerText = "MEST AKTIVT SPÅR (24t)";
+                if (labelTotalChanges) labelTotalChanges.innerText = "TOTALT FLIPPAR (24t)";
+                if (labelPopularSpot) labelPopularSpot.innerText = "MEST POPULÄRT SPÅR (24t)";
+            } else {
+                if (signText) signText.innerText = "RESERVED PARKING";
+                if (signIcon) {
+                    signIcon.innerHTML = `<i class="bi bi-ev-station-fill"></i>`;
+                }
+                if (labelActiveSpot) labelActiveSpot.innerText = "Most Active Spot (24h)";
+                if (labelTotalChanges) labelTotalChanges.innerText = "Total State Changes (24h)";
+                if (labelPopularSpot) labelPopularSpot.innerText = "Most Popular Spot (24h)";
+            }
+
+            const ikeaProductNames = {
+                spot1: "KÖTTBULLAR",
+                spot2: "BILLY",
+                spot3: "POÄNG",
+                spot4: "KALLAX"
+            };
+
             for (const spot of spots) {
                 // Update parent container class for theme targeting
                 const spaceContainer = document.getElementById(`space-${spot.id}`);
@@ -227,20 +403,61 @@
                     spaceContainer.className = `parking-space ${spot.status}`;
                 }
 
+                const nameElement = document.getElementById(`${spot.id}_name`);
+                const statusElement = document.getElementById(`${spot.id}_status`);
                 const iconElement = document.getElementById(spot.id);
                 const timestampElement = document.getElementById(`${spot.id}_timestamp`);
 
+                if (nameElement) {
+                    nameElement.innerText = isIkea ? ikeaProductNames[spot.id] : "";
+                }
+
+                if (statusElement) {
+                    statusElement.innerText = isIkea ? (spot.status === 'unoccupied' ? 'LEDIGT' : 'UPPTAGET') : "";
+                }
+
                 if (iconElement) {
-                    // We only manage the icon class here. The colors/borders are managed by themes.css
-                    iconElement.className = spot.status === 'unoccupied' ? 'bi bi-check2-square' : 'bi bi-x-square';
-                    // Clear hardcoded inline styles so CSS can take over
                     iconElement.style = '';
+                    if (isIkea) {
+                        iconElement.className = "ikea-custom-icon";
+                        if (spot.status === 'unoccupied') {
+                            iconElement.innerHTML = `
+                            <div class="ikea-price-tag-wrapper">
+                                <span class="ikea-price-currency">kr</span>
+                                <span class="ikea-price-value">4.00</span>
+                                <span class="ikea-price-suffix">/kWh</span>
+                            </div>`;
+                        } else {
+                            iconElement.innerHTML = `
+                            <svg class="ikea-svg-gubbe" viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="32" cy="18" r="8" />
+                                <rect x="22" y="30" width="20" height="24" rx="10" />
+                                <path d="M 22 36 C 14 36, 14 18, 26 18" />
+                                <path d="M 42 36 C 50 36, 52 26, 48 24" />
+                                <path d="M 48 10 C 48 6, 54 6, 54 10 C 54 13, 51 14, 51 16 M 51 20 V 20.5" stroke-width="2.5" />
+                            </svg>`;
+                        }
+                    } else {
+                        iconElement.className = spot.status === 'unoccupied' ? 'bi bi-check2-square' : 'bi bi-x-lg';
+                        iconElement.innerHTML = '';
+                    }
                 }
 
                 if (timestampElement) {
                     timestampElement.innerText = new Date(spot.timestamp).toLocaleTimeString();
                 }
             }
+
+            // Calculate live occupancy
+            const occupiedCount = spots.filter(s => s.status === 'occupied').length;
+            const occupancyRate = spots.length > 0 ? Math.round((occupiedCount / spots.length) * 100) : 0;
+            const occupancyElem = document.getElementById('stat-occupancy');
+            if (occupancyElem) {
+                occupancyElem.textContent = `${occupancyRate}% (${occupiedCount}/${spots.length})`;
+            }
+
+            // Refresh historical statistics on status update
+            this.fetchHistoricalStats();
         }
     }
 
@@ -255,7 +472,39 @@
             (spots) => uiManager.renderSpots(spots),
             (status) => uiManager.updateStatus(status)
         );
+
+        // Expose a super slick console testing helper
+        window.mockSpot = (id, status) => {
+            if (![1, 2, 3, 4].includes(id)) {
+                console.error("Invalid spot ID. Choose a number from 1 to 4.");
+                return;
+            }
+            if (!['occupied', 'unoccupied'].includes(status)) {
+                console.error("Invalid status. Use 'occupied' or 'unoccupied'.");
+                return;
+            }
+            
+            const spotKey = `spot${id}`;
+            const currentSpots = uiManager.currentSpots ? [...uiManager.currentSpots] : [
+                { id: 'spot1', status: 'unoccupied', timestamp: Date.now() },
+                { id: 'spot2', status: 'unoccupied', timestamp: Date.now() },
+                { id: 'spot3', status: 'unoccupied', timestamp: Date.now() },
+                { id: 'spot4', status: 'unoccupied', timestamp: Date.now() },
+            ];
+            
+            const spotIndex = currentSpots.findIndex(s => s.id === spotKey);
+            if (spotIndex !== -1) {
+                currentSpots[spotIndex] = {
+                    id: spotKey,
+                    status: status,
+                    timestamp: Date.now()
+                };
+            }
+            
+            uiManager.renderSpots(currentSpots);
+            console.log(`%c[MOCK] ${spotKey} is now ${status.toUpperCase()}!`, "color: #00ff00; font-weight: bold;");
+        };
     });
 </script>
-
+</body>
 </html>
